@@ -1,0 +1,123 @@
+name: CD - Deploy site
+
+# Every push to main ships. The image is built here and pushed to GHCR; the
+# server only pulls it, so no source or build toolchain ever lands there.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false # never interrupt a deploy mid-flight
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/yv-site
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - name: Type check
+        run: npx tsc --noEmit
+
+  build:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # Tagged with the commit sha as well as latest, so a bad deploy can be
+          # rolled back by pinning SITE_IMAGE to the previous sha.
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            API_BASE=${{ secrets.BUILD_API_BASE || 'https://dash-api.yoshlarventures.uz' }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy compose file to the server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          source: docker-compose.prod.yml
+          target: ~/yv-site
+
+      - name: Pull and restart
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd ~/yv-site
+            # .env holds SITE_URL / SITE_INDEXABLE / APPNET_NAME for this host —
+            # it is what distinguishes staging from production, so it is never
+            # overwritten by a deploy.
+            if [ ! -f .env ]; then
+              echo "ERROR: ~/yv-site/.env is missing. Create it before deploying"
+              echo "(see DEPLOYMENT.md); it decides which domain this host serves."
+              exit 1
+            fi
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
+            docker logout ghcr.io
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd ~/yv-site
+            PORT=$(grep -E '^SITE_PORT=' .env | cut -d= -f2 || true)
+            PORT=${PORT:-3002}
+            for i in $(seq 1 20); do
+              CODE=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${PORT}/uz" || true)
+              if [ "$CODE" = "200" ]; then
+                echo "Site is up (HTTP $CODE)"
+                exit 0
+              fi
+              echo "attempt $i: HTTP $CODE — waiting"
+              sleep 6
+            done
+            echo "Site did not become healthy; recent logs:"
+            docker compose -f docker-compose.prod.yml logs --tail=100
+            exit 1
