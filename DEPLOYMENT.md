@@ -14,11 +14,13 @@ real domain at it by changing two lines in that `.env`.
 
 ```bash
 # In this directory
-git remote add origin https://github.com/dilshodmuxtorov/yv-site.git
+git remote add origin https://github.com/dilshodmuxtorov/yoshlarventures.git
 git push -u origin main
 ```
 
-Create `yv-site` on GitHub first (private is fine — GHCR inherits the visibility).
+Create the repository on GitHub first (private is fine — GHCR inherits the
+visibility). The container image is published as `ghcr.io/<owner>/yv-site`
+regardless of the repository name.
 
 ## 2. Add repository secrets
 

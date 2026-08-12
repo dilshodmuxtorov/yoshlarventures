@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Yoshlar Ventures — public site
 
-## Getting Started
+The marketing site for [yoshlarventures.uz](https://yoshlarventures.uz): a
+Next.js App Router app in Uzbek, Russian and English.
 
-First, run the development server:
+Everything editable — team, portfolio, partners, news, events and the page copy
+itself — comes from the dashboard's public CMS API, so the marketing team changes
+the site from the dashboard without a deploy. The apply and contact forms post
+back to the same API; applications land in the shared intake spreadsheet.
+
+## Running locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env     # point API_BASE at a running dashboard backend
+npm install
+npm run dev              # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The site tolerates an unreachable API: pages render with their fallback copy
+rather than failing, so you can work on layout without the backend running.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/app/[locale]/     pages — locale is a path segment (uz | ru | en)
+src/components/       shared UI; sections/ holds the home-page blocks
+src/lib/api.ts        CMS client (server-side fetch + ISR)
+src/lib/i18n.ts       locales, UI strings, SITE_URL / SITE_INDEXABLE
+src/proxy.ts          locale negotiation and redirects
+```
 
-## Learn More
+## Configuration
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Purpose |
+|---|---|
+| `API_BASE` | Dashboard backend origin the CMS is read from |
+| `SITE_URL` | Canonical origin for metadata, sitemap and robots |
+| `SITE_INDEXABLE` | `true` only on the production host — otherwise `robots.txt` disallows everything |
+| `CONTENT_REVALIDATE` | Seconds between ISR revalidations (default 300) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All four are read at runtime, so one built image serves both staging and
+production and switching domains is a config change, not a rebuild.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploying
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push to `main`. CI lints, type-checks, builds a Docker image, pushes it to GHCR
+and restarts the service on the server. See [DEPLOYMENT.md](DEPLOYMENT.md) for
+first-time setup, the staging host, and how to switch to the real domain.
