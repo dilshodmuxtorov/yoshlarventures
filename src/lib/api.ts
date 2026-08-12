@@ -23,22 +23,41 @@ export interface CompanyInfo {
   x_url?: string;
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Statuses worth a second attempt: the public API is IP rate-limited, and a
+// production build prerenders every page in every locale — dozens of calls in a
+// few seconds from one address, which trips that limit. Without a retry those
+// pages are baked with empty content and stay that way until ISR revalidates
+// them, so the site ships looking half-broken.
+const RETRYABLE = new Set([408, 425, 429, 500, 502, 503, 504]);
+const ATTEMPTS = 4;
+
 async function pub<T>(path: string, locale: Locale, fallback: T): Promise<T> {
   const sep = path.includes("?") ? "&" : "?";
   const url = `${API_BASE}/api/v1/public${path}${sep}locale=${locale}`;
-  try {
-    const res = await fetch(url, {
-      headers: { "Accept-Language": locale },
-      next: { revalidate: REVALIDATE },
-    });
-    if (!res.ok) return fallback;
-    const json = (await res.json()) as { response?: T } & T;
-    return (json.response ?? json) as T;
-  } catch {
-    // Backend unreachable (e.g. during a build with no live API) — render the
-    // page shell rather than crashing; ISR will fill it in on the next request.
-    return fallback;
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { "Accept-Language": locale },
+        next: { revalidate: REVALIDATE },
+      });
+      if (res.ok) {
+        const json = (await res.json()) as { response?: T } & T;
+        return (json.response ?? json) as T;
+      }
+      if (!RETRYABLE.has(res.status) || attempt === ATTEMPTS) return fallback;
+      // Honour Retry-After when the server sends one, else back off: 1s, 3s, 7s.
+      const retryAfter = Number(res.headers.get("retry-after"));
+      await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 2 ** attempt * 500 - 500);
+    } catch {
+      // Backend unreachable (e.g. a build with no live API) — render the page
+      // shell rather than crashing; ISR fills it in on a later request.
+      if (attempt === ATTEMPTS) return fallback;
+      await sleep(2 ** attempt * 500 - 500);
+    }
   }
+  return fallback;
 }
 
 export function getCollection(slug: string, locale: Locale): Promise<{ items: ContentRecord[]; total: number }> {

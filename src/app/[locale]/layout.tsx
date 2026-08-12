@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import CustomCursor from "@/components/CustomCursor";
 import Header from "@/components/Header";
+import ThemeSync from "@/components/ThemeSync";
 import Footer from "@/components/Footer";
 import { getCompanyInfo } from "@/lib/api";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n";
@@ -48,6 +49,7 @@ export default async function LocaleLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
       </head>
       <body className={`${spaceGrotesk.variable} ${jakarta.variable}`}>
+        <ThemeSync />
         <AnimatedBackground />
         <CustomCursor />
         <Header locale={loc} />
