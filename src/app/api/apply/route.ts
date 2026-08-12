@@ -73,6 +73,9 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        // See src/lib/api.ts — internal calls bypass nginx, so the backend needs
+        // telling that the edge terminated TLS.
+        "X-Forwarded-Proto": "https",
         // The backend rate-limits per caller address; without this it only ever
         // sees this container and one attacker would exhaust everyone's quota.
         "X-Forwarded-For": ip,

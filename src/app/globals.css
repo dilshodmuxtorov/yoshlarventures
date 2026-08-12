@@ -80,9 +80,13 @@
 
 html {
   scroll-behavior: smooth;
+  /* A single stray wide element should degrade to a clipped edge, never to a
+     page that scrolls sideways under the reader's thumb. */
+  overflow-x: hidden;
 }
 
 body {
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-jakarta), system-ui, sans-serif;

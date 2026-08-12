@@ -63,7 +63,14 @@ async function pub<T>(path: string, locale: Locale, fallback: T): Promise<T> {
   for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
     try {
       const res = await fetch(url, {
-        headers: { "Accept-Language": locale },
+        headers: {
+          "Accept-Language": locale,
+          // This call goes over the docker network, bypassing nginx, so nothing
+          // sets the header the backend uses to tell TLS was terminated —
+          // without it every request is answered with a redirect to https on a
+          // port that speaks plain HTTP, and the read fails.
+          "X-Forwarded-Proto": "https",
+        },
         next: { revalidate: REVALIDATE },
       });
       if (res.ok) {

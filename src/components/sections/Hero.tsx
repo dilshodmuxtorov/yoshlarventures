@@ -93,13 +93,13 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
               wrong wherever the text wraps differently — in English the longest
               string is not the tallest, and the heading overflowed upward over
               the pill above it. */}
-          <div className="grid w-max max-w-full">
+          <div className="grid w-full sm:w-max max-w-full">
             {pairs.map((p, i) => (
               <div
                 key={i}
                 aria-hidden
                 className="invisible font-display font-bold"
-                style={{ gridArea: "1 / 1", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
+                style={{ gridArea: "1 / 1", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "min(18ch, 100%)" }}
               >
                 <span className="block">{p.q}</span>
                 <span className="block">{p.a}</span>
@@ -107,7 +107,7 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
             ))}
             <h1
               className="font-display font-bold"
-              style={{ gridArea: "1 / 1", alignSelf: "end", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
+              style={{ gridArea: "1 / 1", alignSelf: "end", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "min(18ch, 100%)" }}
             >
               <span className="block">{shownQ}</span>
               <span className="block" style={{ color: "var(--orange)" }}>
