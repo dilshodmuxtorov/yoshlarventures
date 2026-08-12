@@ -12,7 +12,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const { texts } = await getPageTexts("news", locale);
-  return pageMetadata({ locale, path: "news", title: texts.h1 || "Yangiliklar", description: texts.intro });
+  const lc: Locale = isLocale(locale) ? locale : "uz";
+  return pageMetadata({ locale, path: "news", title: texts.h1 || UI[lc].page.newsTitle, description: texts.intro });
 }
 
 export default async function NewsPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -31,12 +32,12 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
     <div className="section">
       <div className="container-yv">
         {texts.pill && <Pill>{texts.pill}</Pill>}
-        <h1 className="font-display font-bold mt-4" style={{ fontSize: "clamp(30px,5vw,56px)" }}>{texts.h1 || "Yangiliklar va tadbirlar"}</h1>
+        <h1 className="font-display font-bold mt-4" style={{ fontSize: "clamp(30px,5vw,56px)" }}>{texts.h1 || UI[loc].page.newsH1}</h1>
         {texts.intro && <p className="mt-4 text-lg max-w-2xl" style={{ color: "var(--n500)" }}>{texts.intro}</p>}
 
         {upcoming.items.length > 0 && (
           <section className="mt-12">
-            <h2 className="eyebrow mb-5">{texts.upTitle || "Yaqinlashayotgan tadbirlar"}</h2>
+            <h2 className="eyebrow mb-5">{texts.upTitle || UI[loc].page.upcoming}</h2>
             <div className="grid gap-5 md:grid-cols-3">
               {upcoming.items.map((e) => (
                 <article key={e.id}><Card>
@@ -66,7 +67,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
 
         {archive.items.length > 0 && (
           <section className="mt-14">
-            <h2 className="eyebrow mb-5">{texts.archTitle || "Arxiv"}</h2>
+            <h2 className="eyebrow mb-5">{texts.archTitle || UI[loc].page.archive}</h2>
             <div className="grid gap-5 md:grid-cols-3">
               {archive.items.map((e) => (
                 <article key={e.id}><Card>

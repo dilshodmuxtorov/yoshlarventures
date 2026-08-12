@@ -19,11 +19,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
   const t = UI[loc];
+  const g = t.page;
   const p = (path: string) => `/${loc}${path}`;
   const d = await getHomeData(loc);
   const x = d.texts;
 
-  const ctaFull = x.ctaTitle || "Gʻoyangiz bormi? Bugun boshlang.";
+  const ctaFull = x.ctaTitle || g.ctaTitle;
   const cq = ctaFull.indexOf("?");
   const ctaA = cq >= 0 ? ctaFull.slice(0, cq + 1) : ctaFull;
   const ctaB = cq >= 0 ? ctaFull.slice(cq + 1).trim() : "";
@@ -32,7 +33,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const bci = bandText.lastIndexOf(", ");
   const bandA = bci >= 0 ? bandText.slice(0, bci + 1) : bandText;
   const bandB = bci >= 0 ? bandText.slice(bci + 2) : "";
-  const beliefPill = { uz: "Bizning ishonchimiz", ru: "Наша вера", en: "Our belief" }[loc];
+  const beliefPill = g.beliefPill;
 
   return (
     <>
@@ -42,9 +43,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section style={{ borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)", background: "var(--card)" }}>
         <dl className="container-yv !px-5 grid grid-cols-3 items-start" style={{ marginBlock: 0 }}>
           {[
-            { v: `${d.portfel.length || 14}+`, l: "portfel loyihasi" },
-            { v: x.stat1 || "$300K+", l: "jami sarmoya" },
-            { v: x.stat3 || "2 mlrd", l: "soʻmgacha eng katta chek", accent: true },
+            { v: `${d.portfel.length || 14}+`, l: g.statProjects },
+            { v: x.stat1 || "$300K+", l: g.statInvested },
+            { v: x.stat3 || "2 mlrd", l: g.statCheque, accent: true },
           ].map((st, i) => (
             <div key={i} style={{ padding: "clamp(22px,3.4vw,32px) clamp(16px,2vw,24px)", borderRight: i < 2 ? "1px solid var(--hair)" : undefined }}>
               <dt className="font-display" style={{ fontSize: "clamp(26px,5.6vw,62px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1, color: st.accent ? "var(--orange)" : "var(--ink)" }}>{st.v}</dt>
@@ -58,7 +59,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {d.stages.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv">
-            <h2 className="section-title" style={{ maxWidth: "13ch" }}>{x.secStage || "Bosqichingizga mos qoʻllab-quvvatlash"}</h2>
+            <h2 className="section-title" style={{ maxWidth: "13ch" }}>{x.secStage || g.secStage}</h2>
             <ul style={{ listStyle: "none", margin: "48px 0 0", padding: 0, borderTop: "1px solid var(--hair)" }}>
               {d.stages.map((st, i) => {
                 const lime = i === d.stages.length - 1;
@@ -79,15 +80,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section style={{ background: "var(--warm)", borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)" }}>
         <div className="container-yv grid items-center" style={{ padding: "clamp(64px,8vw,112px) 24px", gap: "clamp(32px,5vw,72px)", gridTemplateColumns: "1fr 1fr" }}>
           <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-            {["“Hali tayyor emasman”", "“Yolgʻizman”", "“Pul yoʻq”"].map((o, i) => (
+            {[g.obj1, g.obj2, g.obj3].map((o, i) => (
               <li key={i} className="font-display" style={{ fontSize: "clamp(24px,3.6vw,42px)", fontWeight: 600, letterSpacing: "-0.03em", color: "var(--ink)", opacity: 0.45, textDecoration: "line-through", textDecorationThickness: "3px", textDecorationColor: "var(--orange)", padding: "16px 0", borderBottom: i < 2 ? "1px solid rgba(20,20,20,.08)" : undefined }}>{o}</li>
             ))}
           </ul>
           <div>
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>
-              Bularning hech biri <span style={{ color: "var(--orange)" }}>toʻsiq emas</span>
+              {g.bandTitle}
             </h2>
-            <p style={{ margin: "22px 0 0", fontSize: 17, lineHeight: 1.7, color: "var(--n700)", maxWidth: "46ch" }}>Eng yaxshi loyihalar ideal holatda tugʻilmaydi. Biz tayyor reja emas, rost fikrni kutamiz.</p>
+            <p style={{ margin: "22px 0 0", fontSize: 17, lineHeight: 1.7, color: "var(--n700)", maxWidth: "46ch" }}>{g.bandBody}</p>
             <Link href={p("/apply")} className="btn-primary" style={{ marginTop: 30 }}>{t.cta.apply}<Badge /></Link>
           </div>
         </div>
@@ -99,9 +100,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="container-yv flex flex-wrap items-end justify-between gap-5 mb-2">
             <div>
               <span className="eyebrow-pill">{t.nav.portfolio}</span>
-              <h2 className="section-title" style={{ marginTop: 18 }}>{x.secPort || "Bizning portfelimiz"}</h2>
+              <h2 className="section-title" style={{ marginTop: 18 }}>{x.secPort || g.secPortfolio}</h2>
             </div>
-            <Link href={p("/portfolio")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>Barchasini koʻrish ↗</Link>
+            <Link href={p("/portfolio")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAll}</Link>
           </div>
           <Marquee durationSec={60} gap={18}>
             {d.portfel.map((c, i) => (
@@ -144,8 +145,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <Reveal as="section" className="section">
           <div className="container-yv flex flex-wrap items-end justify-between gap-5">
             <div>
-              <span className="eyebrow-pill">Ekotizim</span>
-              <h2 className="section-title" style={{ marginTop: 18, maxWidth: "14ch" }}>{x.secProj || "Bizning loyihalarimiz"}</h2>
+              <span className="eyebrow-pill">{g.ecosystem}</span>
+              <h2 className="section-title" style={{ marginTop: 18, maxWidth: "14ch" }}>{x.secProj || g.secProjects}</h2>
             </div>
             {x.projText && <p style={{ margin: 0, maxWidth: "38ch", fontSize: 16, lineHeight: 1.7, color: "var(--n500)" }}>{x.projText}</p>}
           </div>
@@ -159,7 +160,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <h3 className="font-display" style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>{s(pr, "name")}</h3>
                   </div>
                   <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--n500)" }}>{s(pr, "short_description")}</p>
-                  <span style={{ marginTop: "auto", paddingTop: 14, fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>Batafsil ↗</span>
+                  <span style={{ marginTop: "auto", paddingTop: 14, fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>{g.more}</span>
                 </div>
               );
               const link = s(pr, "link_url");
@@ -177,8 +178,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {d.news.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv flex flex-wrap items-end justify-between gap-5">
-            <h2 className="section-title" style={{ maxWidth: "14ch" }}>{x.secNews || "Yangiliklar va tadbirlar"}</h2>
-            <Link href={p("/news")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>Barchasi ↗</Link>
+            <h2 className="section-title" style={{ maxWidth: "14ch" }}>{x.secNews || g.secNews}</h2>
+            <Link href={p("/news")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAllShort}</Link>
           </div>
           <div className="container-yv grid gap-[18px] md:grid-cols-3" style={{ marginTop: 40 }}>
             {d.news.slice(0, 3).map((n) => (
@@ -193,7 +194,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <div className="flex flex-col gap-2.5 flex-1" style={{ padding: 24 }}>
                     <h3 className="font-display" style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>{s(n, "title")}</h3>
                     <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--n500)" }}>{s(n, "body")}</p>
-                    <span style={{ marginTop: "auto", fontSize: 14, fontWeight: 600, color: "var(--orange-ink)" }}>Batafsil ↗</span>
+                    <span style={{ marginTop: "auto", fontSize: 14, fontWeight: 600, color: "var(--orange-ink)" }}>{g.more}</span>
                   </div>
                 </div>
               </article>
@@ -215,7 +216,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/yv/startup-card.png" alt="" style={{ width: "100%", height: "clamp(240px,32vw,360px)", objectFit: "cover", opacity: 0.72 }} />
                 <span className="grid place-items-center text-white" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 76, height: 76, borderRadius: 999, background: "var(--orange)", fontSize: 22, boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>▶</span>
-                <span style={{ position: "absolute", left: 20, bottom: 18, color: "#fff", fontSize: 12, fontWeight: 600, letterSpacing: "0.02em" }}>{x.videoNote || "Intro video · 2:14"}</span>
+                <span style={{ position: "absolute", left: 20, bottom: 18, color: "#fff", fontSize: 12, fontWeight: 600, letterSpacing: "0.02em" }}>{x.videoNote || g.introVideo}</span>
               </div>
             </div>
           </div>
@@ -226,7 +227,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {d.team.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv">
-            <h2 className="section-title">{x.secTeam || "Biz yoshlarga ishonamiz"}</h2>
+            <h2 className="section-title">{x.secTeam || g.secTeam}</h2>
           </div>
           <Marquee durationSec={55} gap={18}>
             {d.team.map((m) => (
@@ -253,7 +254,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {d.logos.length > 0 && (
         <section style={{ padding: "clamp(64px,8vw,112px) 0", borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)" }}>
           <div className="container-yv">
-            <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || "Bizga ishongan hamkorlarimiz"}</h2>
+            <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>
           </div>
           <div style={{ marginTop: 36 }}>
             <Marquee durationSec={34} gap={14}>

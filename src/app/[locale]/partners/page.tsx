@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const { texts } = await getPageTexts("partners", locale);
-  return pageMetadata({ locale, path: "partners", title: texts.h1 || "Hamkorlar", description: texts.intro });
+  const lc: Locale = isLocale(locale) ? locale : "uz";
+  return pageMetadata({ locale, path: "partners", title: texts.h1 || UI[lc].page.partnersTitle, description: texts.intro });
 }
 
 export default async function PartnersPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,7 +28,7 @@ export default async function PartnersPage({ params }: { params: Promise<{ local
     <div className="section">
       <div className="container-yv">
         {texts.pill && <Pill>{texts.pill}</Pill>}
-        <h1 className="font-display font-bold mt-4" style={{ fontSize: "clamp(30px,5vw,56px)" }}>{texts.h1 || "Bizga ishongan hamkorlarimiz"}</h1>
+        <h1 className="font-display font-bold mt-4" style={{ fontSize: "clamp(30px,5vw,56px)" }}>{texts.h1 || UI[loc].page.partnersH1}</h1>
         {texts.intro && <p className="mt-4 text-lg max-w-2xl" style={{ color: "var(--n500)" }}>{texts.intro}</p>}
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mt-10">

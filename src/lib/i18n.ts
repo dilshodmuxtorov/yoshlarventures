@@ -26,6 +26,21 @@ type Dict = {
   cta: { apply: string; more: string; allNews: string; allPartners: string; backHome: string };
   footer: { rights: string; nav: string; contact: string; social: string };
   misc: { menu: string; close: string; loading: string; empty: string };
+  page: {
+    statProjects: string; statInvested: string; statCheque: string;
+    secStage: string; obj1: string; obj2: string; obj3: string;
+    secPortfolio: string; secProjects: string; secNews: string; secTeam: string; secPartners: string;
+    bandTitle: string; bandBody: string; beliefPill: string;
+    ecosystem: string; seeAll: string; seeAllShort: string; more: string; introVideo: string; ctaTitle: string;
+    sector: string; investment: string;
+    aboutTitle: string; aboutIntro: string; processTitle: string; teamTitle: string; teamHeading: string;
+    newsTitle: string; newsH1: string; upcoming: string; archive: string;
+    partnersTitle: string; partnersH1: string;
+    contactTitle: string; contactH1: string; contactDetails: string; openMap: string;
+    applyTitle: string; prepTitle: string;
+    cfSentTitle: string; cfSentBody: string; cfName: string; cfContact: string; cfMessage: string;
+    cfSending: string; cfSubmit: string;
+  };
   apply: {
     step: string; of: string;
     s1: string; s2: string; s3: string; s4: string;
@@ -54,6 +69,24 @@ export const UI: Record<Locale, Dict> = {
     cta: { apply: "Ariza yuborish", more: "Batafsil", allNews: "Barcha yangiliklar", allPartners: "Barcha hamkorlar", backHome: "Bosh sahifaga" },
     footer: { rights: "Barcha huquqlar himoyalangan", nav: "Sahifalar", contact: "Aloqa", social: "Ijtimoiy tarmoqlar" },
     misc: { menu: "Menyu", close: "Yopish", loading: "Yuklanmoqda…", empty: "Hozircha maʼlumot yoʻq" },
+    page: {
+      statProjects: "portfel loyihasi", statInvested: "jami sarmoya", statCheque: "soʻmgacha eng katta chek",
+      secStage: "Bosqichingizga mos qoʻllab-quvvatlash", obj1: "“Hali tayyor emasman”", obj2: "“Yolgʻizman”", obj3: "“Pul yoʻq”",
+      secPortfolio: "Bizning portfelimiz", secProjects: "Bizning loyihalarimiz", secNews: "Yangiliklar va tadbirlar",
+      secTeam: "Biz yoshlarga ishonamiz", secPartners: "Bizga ishongan hamkorlarimiz",
+      bandTitle: "Bularning hech biri toʻsiq emas", bandBody: "Eng yaxshi loyihalar ideal holatda tugʻilmaydi. Biz tayyor reja emas, rost fikrni kutamiz.", beliefPill: "Bizning ishonchimiz",
+      ecosystem: "Ekotizim", seeAll: "Barchasini koʻrish ↗", seeAllShort: "Barchasi ↗", more: "Batafsil ↗",
+      introVideo: "Intro video · 2:14", ctaTitle: "Gʻoyangiz bormi? Bugun boshlang.",
+      sector: "Soha", investment: "Sarmoya",
+      aboutTitle: "Biz haqimizda", aboutIntro: "Startapingizga birinchi ishonadigan bizmiz.",
+      processTitle: "Jarayon", teamTitle: "Jamoa", teamHeading: "Sizni eshitadigan odamlar",
+      newsTitle: "Yangiliklar", newsH1: "Yangiliklar va tadbirlar", upcoming: "Yaqinlashayotgan tadbirlar", archive: "Arxiv",
+      partnersTitle: "Hamkorlar", partnersH1: "Bizga ishongan hamkorlarimiz",
+      contactTitle: "Kontaktlar", contactH1: "Savolingiz bormi? Yozing.", contactDetails: "Aloqa maʼlumotlari", openMap: "Xaritada ochish",
+      applyTitle: "Ariza yuborish", prepTitle: "Nima tayyorlash kerak",
+      cfSentTitle: "Xabaringiz yuborildi", cfSentBody: "Rahmat! Jamoamiz Telegram yoki telefon orqali bogʻlanadi.",
+      cfName: "Ism", cfContact: "Telefon yoki Telegram", cfMessage: "Xabar", cfSending: "Yuborilmoqda…", cfSubmit: "Yuborish",
+    },
     apply: {
       step: "Bosqich", of: "/",
       s1: "Startap haqida", s2: "Bosqich va investitsiya", s3: "Jamoa haqida", s4: "Aloqa maʼlumotlari",
@@ -81,6 +114,24 @@ export const UI: Record<Locale, Dict> = {
     cta: { apply: "Подать заявку", more: "Подробнее", allNews: "Все новости", allPartners: "Все партнёры", backHome: "На главную" },
     footer: { rights: "Все права защищены", nav: "Страницы", contact: "Контакты", social: "Соцсети" },
     misc: { menu: "Меню", close: "Закрыть", loading: "Загрузка…", empty: "Пока нет данных" },
+    page: {
+      statProjects: "проектов в портфеле", statInvested: "всего инвестиций", statCheque: "сумов — крупнейший чек",
+      secStage: "Поддержка под вашу стадию", obj1: "«Я ещё не готов»", obj2: "«Я один»", obj3: "«Нет денег»",
+      secPortfolio: "Наш портфель", secProjects: "Наши проекты", secNews: "Новости и мероприятия",
+      secTeam: "Мы верим в молодых", secPartners: "Партнёры, которые нам доверяют",
+      bandTitle: "Ничто из этого не помеха", bandBody: "Лучшие проекты не рождаются идеальными. Мы ждём не готовый план, а честную мысль.", beliefPill: "Наша вера",
+      ecosystem: "Экосистема", seeAll: "Смотреть все ↗", seeAllShort: "Все ↗", more: "Подробнее ↗",
+      introVideo: "Интро-видео · 2:14", ctaTitle: "Есть идея? Начните сегодня.",
+      sector: "Сфера", investment: "Инвестиции",
+      aboutTitle: "О нас", aboutIntro: "Мы верим в ваш стартап первыми.",
+      processTitle: "Процесс", teamTitle: "Команда", teamHeading: "Люди, которые вас услышат",
+      newsTitle: "Новости", newsH1: "Новости и мероприятия", upcoming: "Ближайшие мероприятия", archive: "Архив",
+      partnersTitle: "Партнёры", partnersH1: "Партнёры, которые нам доверяют",
+      contactTitle: "Контакты", contactH1: "Есть вопрос? Напишите.", contactDetails: "Контактные данные", openMap: "Открыть на карте",
+      applyTitle: "Подать заявку", prepTitle: "Что подготовить",
+      cfSentTitle: "Сообщение отправлено", cfSentBody: "Спасибо! Наша команда свяжется с вами в Telegram или по телефону.",
+      cfName: "Имя", cfContact: "Телефон или Telegram", cfMessage: "Сообщение", cfSending: "Отправляется…", cfSubmit: "Отправить",
+    },
     apply: {
       step: "Шаг", of: "/",
       s1: "О стартапе", s2: "Стадия и инвестиции", s3: "О команде", s4: "Контактные данные",
@@ -108,6 +159,24 @@ export const UI: Record<Locale, Dict> = {
     cta: { apply: "Apply now", more: "Learn more", allNews: "All news", allPartners: "All partners", backHome: "Back home" },
     footer: { rights: "All rights reserved", nav: "Pages", contact: "Contact", social: "Social" },
     misc: { menu: "Menu", close: "Close", loading: "Loading…", empty: "Nothing here yet" },
+    page: {
+      statProjects: "portfolio companies", statInvested: "invested to date", statCheque: "soum — largest cheque",
+      secStage: "Support that matches your stage", obj1: "“I'm not ready yet”", obj2: "“I'm on my own”", obj3: "“I have no money”",
+      secPortfolio: "Our portfolio", secProjects: "Our projects", secNews: "News and events",
+      secTeam: "We believe in young founders", secPartners: "Partners who trust us",
+      bandTitle: "None of that is a barrier", bandBody: "The best projects are not born finished. We are looking for an honest idea, not a polished plan.", beliefPill: "Our belief",
+      ecosystem: "Ecosystem", seeAll: "See all ↗", seeAllShort: "All ↗", more: "Read more ↗",
+      introVideo: "Intro video · 2:14", ctaTitle: "Got an idea? Start today.",
+      sector: "Sector", investment: "Investment",
+      aboutTitle: "About us", aboutIntro: "We are the first to believe in your startup.",
+      processTitle: "Process", teamTitle: "Team", teamHeading: "The people who will listen",
+      newsTitle: "News", newsH1: "News and events", upcoming: "Upcoming events", archive: "Archive",
+      partnersTitle: "Partners", partnersH1: "Partners who trust us",
+      contactTitle: "Contact", contactH1: "Have a question? Write to us.", contactDetails: "Contact details", openMap: "Open in Maps",
+      applyTitle: "Apply", prepTitle: "What to prepare",
+      cfSentTitle: "Your message has been sent", cfSentBody: "Thank you! Our team will get in touch on Telegram or by phone.",
+      cfName: "Name", cfContact: "Phone or Telegram", cfMessage: "Message", cfSending: "Sending…", cfSubmit: "Send",
+    },
     apply: {
       step: "Step", of: "/",
       s1: "About the startup", s2: "Stage and investment", s3: "About the team", s4: "Contact details",

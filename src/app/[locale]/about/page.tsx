@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const { texts } = await getPageTexts("about", locale);
-  return pageMetadata({ locale, path: "about", title: texts.h1 || "Biz haqimizda", description: texts.intro });
+  const lc: Locale = isLocale(locale) ? locale : "uz";
+  return pageMetadata({ locale, path: "about", title: texts.h1 || UI[lc].page.aboutTitle, description: texts.intro });
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -36,7 +37,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
         {steps.items.length > 0 && (
           <section className="mt-16">
-            <h2 className="eyebrow mb-2">{texts.processTitle || "Jarayon"}</h2>
+            <h2 className="eyebrow mb-2">{texts.processTitle || UI[loc].page.processTitle}</h2>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mt-5">
               {steps.items.map((st, i) => (
                 <div key={st.id} className="rounded-3xl p-6" style={{ background: i === steps.items.length - 1 ? "var(--lime)" : "var(--card)", border: "1px solid var(--hair)", color: i === steps.items.length - 1 ? "#1a1a1a" : undefined }}>
@@ -51,8 +52,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
         {team.items.length > 0 && (
           <section className="mt-16">
-            <h2 className="eyebrow mb-2">{texts.teamTitle || "Jamoa"}</h2>
-            <p className="font-display font-bold text-2xl mb-6">{texts.teamHeading || "Sizni eshitadigan odamlar"}</p>
+            <h2 className="eyebrow mb-2">{texts.teamTitle || UI[loc].page.teamTitle}</h2>
+            <p className="font-display font-bold text-2xl mb-6">{texts.teamHeading || UI[loc].page.teamHeading}</p>
             <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
               {team.items.map((m) => (
                 <article key={m.id}>
