@@ -111,3 +111,13 @@ export function websiteJsonLd() {
     inLanguage: ["uz", "ru", "en"],
   };
 }
+
+/** Serialise for embedding inside a <script> element.
+ *
+ * JSON.stringify escapes quotes and backslashes but not "<", so a CMS value
+ * containing "</script>" would close the tag and everything after it would be
+ * parsed as HTML. These values come from Company Info, which staff can edit, so
+ * the sequences that matter to the HTML parser are escaped to their \u form. */
+export function jsonLdScript(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+}

@@ -9,7 +9,7 @@ import ThemeSync from "@/components/ThemeSync";
 import Footer from "@/components/Footer";
 import { getCompanyInfo } from "@/lib/api";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n";
-import { organizationJsonLd, pageMetadata, websiteJsonLd } from "@/lib/seo";
+import { jsonLdScript, organizationJsonLd, pageMetadata, websiteJsonLd } from "@/lib/seo";
 import "../globals.css";
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-space-grotesk", display: "swap" });
@@ -45,8 +45,8 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd(company)) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationJsonLd(company)) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(websiteJsonLd()) }} />
       </head>
       <body className={`${spaceGrotesk.variable} ${jakarta.variable}`}>
         <ThemeSync />

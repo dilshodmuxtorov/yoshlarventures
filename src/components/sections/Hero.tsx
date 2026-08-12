@@ -34,15 +34,6 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
     { q: texts.q4, a: texts.a4 },
   ].filter((p) => p.q || p.a);
 
-  // The single tallest pair (by combined length) sizes an invisible block so the
-  // hero reserves exactly that pair's height — fixed while typing, no extra gap.
-  const tallest = pairs.reduce(
-    (m, p) => ((p.q?.length ?? 0) + (p.a?.length ?? 0) > (m.q?.length ?? 0) + (m.a?.length ?? 0) ? p : m),
-    { q: texts.h1 ?? "", a: "" },
-  );
-  const longestQ = tallest.q ?? "";
-  const longestA = tallest.a ?? "";
-
   const reduced = usePrefersReducedMotion();
   const [pi, setPi] = useState(0);
   const [qt, setQt] = useState(pairs[0]?.q ?? texts.h1 ?? "");
@@ -96,21 +87,27 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
               {texts.pill}
             </span>
           )}
-          <div className="relative w-max max-w-full">
-            {/* invisible sizer: reserves the tallest phrase's height so the hero
-                stays a fixed size while the text types and erases. max-width:18ch
-                is relative to THIS 68px font, so it wraps like the design. */}
-            <div
-              aria-hidden
-              className="invisible font-display font-bold"
-              style={{ fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
-            >
-              <span className="block">{longestQ}</span>
-              <span className="block">{longestA}</span>
-            </div>
+          {/* Every phrase is stacked in the same grid cell, all but the live one
+              invisible, so the block is exactly as tall as the tallest phrase
+              actually renders. Measuring by character count instead would be
+              wrong wherever the text wraps differently — in English the longest
+              string is not the tallest, and the heading overflowed upward over
+              the pill above it. */}
+          <div className="grid w-max max-w-full">
+            {pairs.map((p, i) => (
+              <div
+                key={i}
+                aria-hidden
+                className="invisible font-display font-bold"
+                style={{ gridArea: "1 / 1", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
+              >
+                <span className="block">{p.q}</span>
+                <span className="block">{p.a}</span>
+              </div>
+            ))}
             <h1
-              className="absolute inset-x-0 bottom-0 font-display font-bold"
-              style={{ fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
+              className="font-display font-bold"
+              style={{ gridArea: "1 / 1", alignSelf: "end", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
             >
               <span className="block">{shownQ}</span>
               <span className="block" style={{ color: "var(--orange)" }}>
