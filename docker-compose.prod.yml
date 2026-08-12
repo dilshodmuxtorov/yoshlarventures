@@ -17,7 +17,7 @@ services:
       # Where the site reads CMS content from, over the internal network.
       API_BASE: ${API_BASE:-http://backend:8000}
       # Canonical origin: metadata, sitemap and robots are built from this.
-      SITE_URL: ${SITE_URL:-https://beta.yoshlarventures.uz}
+      SITE_URL: ${SITE_URL:-https://new.yoshlarventures.uz}
       # Staging must stay out of search results — set to "true" only on the
       # production host, once the real domain is switched over.
       SITE_INDEXABLE: ${SITE_INDEXABLE:-false}

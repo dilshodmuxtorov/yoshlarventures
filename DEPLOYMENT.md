@@ -3,9 +3,9 @@
 The site is a Next.js app that reads its content from the dashboard's public API.
 CI builds a Docker image and pushes it to GHCR; the server only pulls. The image
 carries no environment: `~/yv-site/.env` on each host decides which domain that
-host serves, so the **same image** runs the beta and, later, production.
+host serves, so the **same image** runs the staging host and, later, production.
 
-Plan: bring the site up on `beta.yoshlarventures.uz`, verify it, then point the
+Plan: bring the site up on `new.yoshlarventures.uz`, verify it, then point the
 real domain at it by changing two lines in that `.env`.
 
 ---
@@ -39,11 +39,11 @@ approval under `Settings → Environments` if you want a gate before each ship.
 
 ## 3. Point DNS at the server
 
-Add an **A record**: `beta` → the server's IP address. Confirm it resolves before
+Add an **A record**: `new` → the server's IP address. Confirm it resolves before
 requesting a certificate:
 
 ```bash
-dig +short beta.yoshlarventures.uz
+dig +short new.yoshlarventures.uz
 ```
 
 ## 4. Prepare the server
@@ -63,7 +63,7 @@ Then write `~/yv-site/.env` (this file is never overwritten by a deploy):
 
 ```bash
 cat > ~/yv-site/.env <<'EOF'
-SITE_URL=https://beta.yoshlarventures.uz
+SITE_URL=https://new.yoshlarventures.uz
 SITE_INDEXABLE=false
 API_BASE=http://backend:8000
 SITE_PORT=3002
@@ -82,19 +82,19 @@ nginx is managed on the server, outside this repo. What the site needs from it:
 - **proxy target** `http://127.0.0.1:3002` (whatever `SITE_PORT` is set to)
 - **`proxy_http_version 1.1`** and the usual `Host` / `X-Forwarded-*` headers
 - **`proxy_buffering off`** — Next.js streams responses; buffering delays paint
-- **a certificate** for `beta.yoshlarventures.uz`
+- **a certificate** for `new.yoshlarventures.uz`
 
 Two things worth adding while this is a staging host:
 
 - `add_header X-Robots-Tag "noindex, nofollow" always;` — a crawler that ignores
   robots.txt still sees the header, and it applies to every response
-- HTTP basic auth, so the beta is not readable by anyone who guesses the
-  subdomain:
+- HTTP basic auth, so the staging host is not readable by anyone who guesses
+  the subdomain:
   ```bash
   sudo apt install -y apache2-utils
-  sudo htpasswd -c /etc/nginx/.htpasswd-beta yv
+  sudo htpasswd -c /etc/nginx/.htpasswd-new yv
   ```
-  then `auth_basic "beta";` + `auth_basic_user_file /etc/nginx/.htpasswd-beta;`
+  then `auth_basic "staging";` + `auth_basic_user_file /etc/nginx/.htpasswd-new;`
 
 Skip HSTS here — committing a staging subdomain to HTTPS-only for a year is hard
 to undo if the certificate lapses.
@@ -108,8 +108,8 @@ until it answers 200 — failing the run (with logs) if it never does.
 ## 7. Verify
 
 ```bash
-curl -I https://beta.yoshlarventures.uz/uz                 # 200 (401 until you send the basic-auth user)
-curl -s https://beta.yoshlarventures.uz/robots.txt         # must Disallow: /
+curl -I https://new.yoshlarventures.uz/uz                 # 200 (401 until you send the basic-auth user)
+curl -s https://new.yoshlarventures.uz/robots.txt         # must Disallow: /
 ```
 
 Check that content is coming from the CMS (team photos, partner logos, news) and
@@ -119,7 +119,7 @@ that submitting the apply form adds a row to the intake sheet.
 
 ## Switching to the real domain
 
-Once the beta looks right:
+Once the staging site looks right:
 
 1. Point `yoshlarventures.uz` (and `www`) at the server.
 2. Add the production server block in nginx: same proxy target, `server_name`
