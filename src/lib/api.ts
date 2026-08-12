@@ -30,8 +30,12 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // few seconds from one address, which trips that limit. Without a retry those
 // pages are baked with empty content and stay that way until ISR revalidates
 // them, so the site ships looking half-broken.
-const RETRYABLE = new Set([408, 425, 429, 500, 502, 503, 504]);
-const ATTEMPTS = 4;
+// 403 is in here on purpose: django_ratelimit raises a PermissionDenied
+// subclass, so a throttled read arrives as 403 rather than 429. These endpoints
+// are anonymous and read-only, so a 403 has no other meaning — treating it as
+// permanent is what left builds shipping pages with no content.
+const RETRYABLE = new Set([403, 408, 425, 429, 500, 502, 503, 504]);
+const ATTEMPTS = 5;
 
 async function pub<T>(path: string, locale: Locale, fallback: T): Promise<T> {
   const sep = path.includes("?") ? "&" : "?";
