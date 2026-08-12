@@ -237,3 +237,10 @@ h1, h2, h3, h4, .font-display {
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Footer social buttons: neutral until hovered, then the network's own colour. */
+.social-telegram:hover { background: #229ED9 !important; border-color: #229ED9 !important; color: #fff !important; }
+.social-instagram:hover { background: linear-gradient(45deg,#F58529,#DD2A7B,#8134AF) !important; border-color: transparent !important; color: #fff !important; }
+.social-youtube:hover { background: #FF0000 !important; border-color: #FF0000 !important; color: #fff !important; }
+.social-linkedin:hover { background: #0A66C2 !important; border-color: #0A66C2 !important; color: #fff !important; }
+.social-x:hover { background: #000 !important; border-color: #000 !important; color: #fff !important; }

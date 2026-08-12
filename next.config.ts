@@ -25,6 +25,9 @@ const securityHeaders = [
       "img-src 'self' data: https:",
       "font-src 'self' data:",
       "connect-src 'self'",
+      // The contact page embeds a Google Maps frame for the office address.
+      // Without this, default-src would fall back to 'self' and block it.
+      "frame-src https://maps.google.com https://www.google.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

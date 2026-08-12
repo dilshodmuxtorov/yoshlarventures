@@ -19,6 +19,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
   const [{ texts }, company] = await Promise.all([getPageTexts("contact", loc), getCompanyInfo(loc)]);
+  const mapLink = loc === "ru" ? "Открыть на карте" : loc === "en" ? "Open in Maps" : "Xaritada ochish";
 
   return (
     <div className="section">
@@ -37,9 +38,29 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               {company.telegram_url && <li><a href={company.telegram_url} target="_blank" rel="noopener noreferrer" className="hover:underline">Telegram</a></li>}
               {company.address && <li style={{ color: "var(--n500)" }}>{company.address}</li>}
             </ul>
-            <div className="mt-5 rounded-2xl aspect-video grid place-items-center" style={{ background: "var(--warm)" }}>
-              <span className="text-sm" style={{ color: "var(--warm-ink)" }}>Xarita</span>
-            </div>
+            {company.address && (
+              <div className="mt-5">
+                {/* Keyless embed driven by the address the CMS holds, so moving
+                    office is a content edit rather than a code change. */}
+                <iframe
+                  title={company.address}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(company.address)}&z=16&output=embed`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full aspect-video rounded-2xl border-0"
+                  style={{ background: "var(--warm)" }}
+                />
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(company.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-3 text-sm hover:underline"
+                  style={{ color: "var(--orange-ink)" }}
+                >
+                  {mapLink} ↗
+                </a>
+              </div>
+            )}
           </div></div>
         </div>
       </div>
