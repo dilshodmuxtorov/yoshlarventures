@@ -2,10 +2,29 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 type Texts = Record<string, string>;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+/** Read as a render-time value rather than copied into state from an effect, so
+ * the typewriter simply isn't started when motion is unwanted. Assumed false on
+ * the server, which matches the markup the animation starts from. */
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(
+    subscribeToReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+}
 
 export default function Hero({ texts, applyHref, portfolioHref, applyLabel, portfolioLabel }: { texts: Texts; applyHref: string; portfolioHref: string; applyLabel: string; portfolioLabel: string }) {
   const pairs = [
@@ -24,17 +43,17 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
   const longestQ = tallest.q ?? "";
   const longestA = tallest.a ?? "";
 
+  const reduced = usePrefersReducedMotion();
   const [pi, setPi] = useState(0);
   const [qt, setQt] = useState(pairs[0]?.q ?? texts.h1 ?? "");
   const [at, setAt] = useState(pairs[0]?.a ?? "");
 
+  // With motion suppressed the pair is shown whole instead of typed out.
+  const shownQ = reduced ? (pairs[pi]?.q ?? texts.h1 ?? "") : qt;
+  const shownA = reduced ? (pairs[pi]?.a ?? "") : at;
+
   useEffect(() => {
-    if (pairs.length === 0) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setQt(pairs[pi].q || "");
-      setAt(pairs[pi].a || "");
-      return;
-    }
+    if (pairs.length === 0 || reduced) return;
     let cancelled = false;
     const pair = pairs[pi];
     const q = pair.q || "";
@@ -60,7 +79,7 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pi]);
+  }, [pi, reduced]);
 
   return (
     <section className="relative overflow-hidden -mt-20">
@@ -93,9 +112,9 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
               className="absolute inset-x-0 bottom-0 font-display font-bold"
               style={{ fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "18ch" }}
             >
-              <span className="block">{qt}</span>
+              <span className="block">{shownQ}</span>
               <span className="block" style={{ color: "var(--orange)" }}>
-                {at}
+                {shownA}
                 <span className="caret">|</span>
               </span>
             </h1>

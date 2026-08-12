@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Card, Monogram, Pill } from "@/components/ui";
+import { Monogram, Pill } from "@/components/ui";
 import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";

@@ -19,7 +19,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function YesNo({ name, value, onChange }: { name: string; value: string; onChange: (v: string) => void }) {
+function YesNo({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex gap-2">
       {["Ha", "Yoʻq"].map((o) => (
@@ -116,14 +116,14 @@ export default function ApplyForm({ locale }: { locale: string }) {
           </div>
           <p className="text-xs" style={{ color: "var(--n500)", marginTop: -8 }}>Valyuta barcha summa maydonlariga tegishli (investitsiya, oylik daromad, oldingi investitsiya). UZS tanlansa, USD kursida saqlanadi.</p>
           <Field label="Mablagʻni sarflash rejasi"><textarea rows={3} className="w-full rounded-xl border px-4 py-3 text-sm resize-y" style={inputStyle} value={g("mablagniSarflash")} onChange={(e) => set("mablagniSarflash", e.target.value)} /></Field>
-          <Field label="Akseleratsiya/inkubatsiya guvohnomasi bormi?"><YesNo name="aks" value={g("akseleratsiya")} onChange={(v) => set("akseleratsiya", v)} /></Field>
+          <Field label="Akseleratsiya/inkubatsiya guvohnomasi bormi?"><YesNo value={g("akseleratsiya")} onChange={(v) => set("akseleratsiya", v)} /></Field>
           {g("akseleratsiya") === "Ha" && (
             <div className="grid grid-cols-2 gap-3">
               <Field label="Dastur nomi"><input className={ic} style={inputStyle} value={g("dasturNomi")} onChange={(e) => set("dasturNomi", e.target.value)} /></Field>
               <Field label="Dastur yili"><input className={ic} style={inputStyle} value={g("dasturYili")} onChange={(e) => set("dasturYili", e.target.value)} /></Field>
             </div>
           )}
-          <Field label="Startap tanlovlarida qatnashganmisiz?"><YesNo name="tan" value={g("tanlov")} onChange={(v) => set("tanlov", v)} /></Field>
+          <Field label="Startap tanlovlarida qatnashganmisiz?"><YesNo value={g("tanlov")} onChange={(v) => set("tanlov", v)} /></Field>
           {g("tanlov") === "Ha" && (
             <div className="grid grid-cols-2 gap-3">
               <Field label="Tanlov nomi"><input className={ic} style={inputStyle} value={g("tanlovNomi")} onChange={(e) => set("tanlovNomi", e.target.value)} /></Field>
@@ -155,11 +155,11 @@ export default function ApplyForm({ locale }: { locale: string }) {
           </Field>
           <Field label="Hamtasischilar soni"><input type="number" min={0} max={8} className={ic} style={inputStyle} value={g("hamtasischilarSoni")} onChange={(e) => set("hamtasischilarSoni", e.target.value)} /></Field>
           <Field label="Jamoa haqida (ismi, yoshi, vazifasi)"><textarea rows={3} className="w-full rounded-xl border px-4 py-3 text-sm resize-y" style={inputStyle} value={g("team")} onChange={(e) => set("team", e.target.value)} /></Field>
-          <Field label="Hozirda savdo bormi?"><YesNo name="sav" value={g("savdoBormi")} onChange={(v) => set("savdoBormi", v)} /></Field>
+          <Field label="Hozirda savdo bormi?"><YesNo value={g("savdoBormi")} onChange={(v) => set("savdoBormi", v)} /></Field>
           {g("savdoBormi") === "Ha" && (
             <Field label="Oʻrtacha oylik daromad"><input className={ic} style={inputStyle} value={g("oylikDaromad")} onChange={(e) => set("oylikDaromad", e.target.value)} /></Field>
           )}
-          <Field label="Oldin investitsiya jalb qilganmisiz?"><YesNo name="inv" value={g("investitsiyaJalbQilganmi")} onChange={(v) => set("investitsiyaJalbQilganmi", v)} /></Field>
+          <Field label="Oldin investitsiya jalb qilganmisiz?"><YesNo value={g("investitsiyaJalbQilganmi")} onChange={(v) => set("investitsiyaJalbQilganmi", v)} /></Field>
           {g("investitsiyaJalbQilganmi") === "Ha" && (
             <>
               <Field label="Moliyalashtirish manbalari">

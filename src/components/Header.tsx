@@ -2,26 +2,52 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 
 import { LOCALES, UI, type Locale } from "@/lib/i18n";
+
+/** Subscribe to the theme the inline boot script wrote onto <html>.
+ *
+ * The attribute is set before hydration, so it cannot be read during the server
+ * render; reading it in an effect and mirroring it into state would trigger a
+ * second render pass on every mount. useSyncExternalStore reads the live value
+ * instead, with "light" as the server snapshot to match the boot default. */
+function subscribeToTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => observer.disconnect();
+}
+
+function useTheme(): "light" | "dark" {
+  return useSyncExternalStore(
+    subscribeToTheme,
+    () => (document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light"),
+    () => "light",
+  );
+}
 
 export default function Header({ locale }: { locale: Locale }) {
   const pathname = usePathname();
   const t = UI[locale];
-  const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    const current = document.documentElement.getAttribute("data-theme");
-    setTheme(current === "dark" ? "dark" : "light");
-  }, []);
-
-  useEffect(() => setOpen(false), [pathname]);
+  // The menu is remembered against the path it was opened on, so navigating
+  // closes it without an effect that reacts to the route changing.
+  const [openedOn, setOpenedOn] = useState<string | null>(null);
+  const open = openedOn === pathname;
+  const setOpen = useCallback(
+    (next: boolean | ((current: boolean) => boolean)) => {
+      setOpenedOn((current) => {
+        const isOpen = current === pathname;
+        const wanted = typeof next === "function" ? next(isOpen) : next;
+        return wanted ? pathname : null;
+      });
+    },
+    [pathname],
+  );
+  const theme = useTheme();
 
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
+    // The observer above turns this into a re-render — no setState needed.
     document.documentElement.setAttribute("data-theme", next);
     try {
       localStorage.setItem("yv-theme", next);
