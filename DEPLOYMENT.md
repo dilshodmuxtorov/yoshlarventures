@@ -31,8 +31,14 @@ same values as the dashboard repo:
 |---|---|
 | `PRODUCTION_HOST` | server IP or hostname |
 | `PRODUCTION_USER` | SSH user |
-| `PRODUCTION_SSH_KEY` | private key for that user |
+| `PRODUCTION_SSH_KEY` | private key for that user, whole file including the BEGIN/END lines |
+| `GHCR_PAT` | *(recommended)* classic PAT with only `read:packages` — used by the server to pull the image |
 | `BUILD_API_BASE` | *(optional)* API host used during the build — defaults to `https://dash-api.yoshlarventures.uz` |
+
+`GHCR_PAT` is optional: without it the workflow falls back to the run's own
+token, which works during the deploy but expires with it, so a later manual
+`docker pull` on the server would fail. Give the PAT `read:packages` and nothing
+else — it never needs write access.
 
 The deploy job runs in a `production` environment, so you can require a manual
 approval under `Settings → Environments` if you want a gate before each ship.

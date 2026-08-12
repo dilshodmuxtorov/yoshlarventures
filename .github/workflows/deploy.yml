@@ -77,10 +77,18 @@ jobs:
 
       - name: Pull and restart
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          # A read:packages PAT if one is configured, otherwise the run's own
+          # token. The PAT is the reliable choice for a private package: the
+          # ephemeral token is scoped to this workflow run, so a manual `docker
+          # pull` on the server later would fail without it.
+          GHCR_TOKEN: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.repository_owner }}
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          envs: GHCR_TOKEN,GHCR_USER
           script: |
             set -euo pipefail
             cd ~/yv-site
@@ -92,7 +100,7 @@ jobs:
               echo "(see DEPLOYMENT.md); it decides which domain this host serves."
               exit 1
             fi
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker image prune -f
