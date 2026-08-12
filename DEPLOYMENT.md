@@ -2,7 +2,7 @@
 
 The site is a Next.js app that reads its content from the dashboard's public API.
 CI builds a Docker image and pushes it to GHCR; the server only pulls. The image
-carries no environment: `~/yv-site/.env` on each host decides which domain that
+carries no environment: `~/yoshlar-venture-new/.env` on each host decides which domain that
 host serves, so the **same image** runs the staging host and, later, production.
 
 Plan: bring the site up on `new.yoshlarventures.uz`, verify it, then point the
@@ -55,7 +55,7 @@ dig +short new.yoshlarventures.uz
 ## 4. Prepare the server
 
 ```bash
-mkdir -p ~/yv-site
+mkdir -p ~/yoshlar-venture-new
 ```
 
 Find the docker network the dashboard stack created — the site joins it to reach
@@ -65,10 +65,10 @@ the API internally:
 docker network ls | grep appnet
 ```
 
-Then write `~/yv-site/.env` (this file is never overwritten by a deploy):
+Then write `~/yoshlar-venture-new/.env` (this file is never overwritten by a deploy):
 
 ```bash
-cat > ~/yv-site/.env <<'EOF'
+cat > ~/yoshlar-venture-new/.env <<'EOF'
 SITE_URL=https://new.yoshlarventures.uz
 SITE_INDEXABLE=false
 API_BASE=http://backend:8000
@@ -131,12 +131,12 @@ Once the staging site looks right:
 2. Add the production server block in nginx: same proxy target, `server_name`
    for both names, no basic auth, no `X-Robots-Tag`, and HSTS this time. Run
    certbot for both names.
-3. Edit `~/yv-site/.env`:
+3. Edit `~/yoshlar-venture-new/.env`:
    ```bash
    SITE_URL=https://yoshlarventures.uz
    SITE_INDEXABLE=true
    ```
-4. `cd ~/yv-site && docker compose -f docker-compose.prod.yml up -d`
+4. `cd ~/yoshlar-venture-new && docker compose -f docker-compose.prod.yml up -d`
 
 No rebuild is needed — both values are read at runtime. Step 3 is also what
 turns the site's `robots.txt` from `Disallow: /` into a normal one, so do not do
@@ -147,7 +147,7 @@ it before the domain is actually live.
 Images are tagged with the commit sha:
 
 ```bash
-cd ~/yv-site
+cd ~/yoshlar-venture-new
 SITE_IMAGE=ghcr.io/dilshodmuxtorov/yv-site:<sha> \
   docker compose -f docker-compose.prod.yml up -d
 ```

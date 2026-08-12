@@ -13,6 +13,8 @@ concurrency:
 
 env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/yv-site
+  # Directory the compose file and the host's .env live in on the server.
+  DEPLOY_DIR: yoshlar-venture-new
 
 jobs:
   check:
@@ -73,7 +75,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           source: docker-compose.prod.yml
-          target: ~/yv-site
+          target: ~/${{ env.DEPLOY_DIR }}
 
       - name: Pull and restart
         uses: appleboy/ssh-action@v1.0.3
@@ -91,12 +93,12 @@ jobs:
           envs: GHCR_TOKEN,GHCR_USER
           script: |
             set -euo pipefail
-            cd ~/yv-site
+            cd ~/${{ env.DEPLOY_DIR }}
             # .env holds SITE_URL / SITE_INDEXABLE / APPNET_NAME for this host —
             # it is what distinguishes staging from production, so it is never
             # overwritten by a deploy.
             if [ ! -f .env ]; then
-              echo "ERROR: ~/yv-site/.env is missing. Create it before deploying"
+              echo "ERROR: ~/${{ env.DEPLOY_DIR }}/.env is missing. Create it before deploying"
               echo "(see DEPLOYMENT.md); it decides which domain this host serves."
               exit 1
             fi
@@ -114,7 +116,7 @@ jobs:
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
             set -euo pipefail
-            cd ~/yv-site
+            cd ~/${{ env.DEPLOY_DIR }}
             PORT=$(grep -E '^SITE_PORT=' .env | cut -d= -f2 || true)
             PORT=${PORT:-3002}
             for i in $(seq 1 20); do
