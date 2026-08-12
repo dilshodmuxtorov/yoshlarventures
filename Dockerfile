@@ -23,15 +23,26 @@ COPY . .
 # while at runtime the container talks to the backend over the docker network.
 ARG API_BASE=https://dash-api.yoshlarventures.uz
 ENV API_BASE=$API_BASE
+# Stamped into the image so /api/health can report what is actually running.
+ARG BUILD_COMMIT=dev
+ARG BUILD_TIME=
+ENV BUILD_COMMIT=$BUILD_COMMIT \
+    BUILD_TIME=$BUILD_TIME
 RUN npm run build
 
 # ── runtime ──────────────────────────────────────────────────────────────────
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
+# Re-declared here: ARGs and ENVs do not cross stage boundaries, and /api/health
+# reads these at request time rather than having them baked into the bundle.
+ARG BUILD_COMMIT=dev
+ARG BUILD_TIME=
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0
+    HOSTNAME=0.0.0.0 \
+    BUILD_COMMIT=$BUILD_COMMIT \
+    BUILD_TIME=$BUILD_TIME
 
 # Unprivileged user: a bug in the app should not be able to write to the image.
 RUN groupadd --system --gid 1001 nodejs \

@@ -27,14 +27,14 @@ services:
       - "127.0.0.1:${SITE_PORT:-3002}:3000"
     healthcheck:
       # Uses node's global fetch rather than curl/wget, neither of which is in the
-      # slim base image. Makes `docker compose ps` report real health instead of
-      # just "running", so a site that boots but cannot serve is visible at a glance.
+      # slim base image. Probes /api/health rather than a page so an unreachable
+      # CMS never marks a perfectly healthy container as down.
       test:
         [
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3000/uz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 30s
       timeout: 10s

@@ -59,6 +59,8 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             API_BASE=${{ secrets.BUILD_API_BASE || 'https://dash-api.yoshlarventures.uz' }}
+            BUILD_COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.repository.updated_at }}
 
   deploy:
     needs: build
@@ -76,6 +78,21 @@ jobs:
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           source: docker-compose.prod.yml
           target: ~/${{ env.DEPLOY_DIR }}
+
+      # A read-only copy of the sources that produced this image, for looking at
+      # on the box. It is NOT what runs — the container serves the compiled image,
+      # so editing anything here changes nothing and is overwritten by the next
+      # deploy. Pushed from the runner rather than cloned on the server, so no git
+      # credential ever has to live there.
+      - name: Copy source snapshot to the server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          source: "src/,public/,package.json,package-lock.json,next.config.ts,tsconfig.json,Dockerfile,README.md,DEPLOYMENT.md"
+          target: ~/${{ env.DEPLOY_DIR }}/source
+          overwrite: true
 
       - name: Pull and restart
         uses: appleboy/ssh-action@v1.0.3
