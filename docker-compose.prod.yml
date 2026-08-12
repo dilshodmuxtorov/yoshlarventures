@@ -33,4 +33,4 @@ networks:
     # Created by the dashboard stack; this file attaches to it rather than
     # defining its own. Confirm the name with:  docker network ls | grep appnet
     external: true
-    name: ${APPNET_NAME:-yoshlar-venture-dashboard_appnet}
+    name: ${APPNET_NAME:-yv-dashboard-prod_appnet}

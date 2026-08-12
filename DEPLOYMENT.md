@@ -73,7 +73,7 @@ SITE_URL=https://new.yoshlarventures.uz
 SITE_INDEXABLE=false
 API_BASE=http://backend:8000
 SITE_PORT=3002
-APPNET_NAME=yoshlar-venture-dashboard_appnet
+APPNET_NAME=yv-dashboard-prod_appnet
 CONTENT_REVALIDATE=300
 EOF
 ```
