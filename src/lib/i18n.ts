@@ -33,7 +33,10 @@ type Dict = {
     bandTitle: string; bandBody: string; beliefPill: string;
     ecosystem: string; seeAll: string; seeAllShort: string; more: string; introVideo: string; ctaTitle: string;
     sector: string; investment: string;
-    aboutTitle: string; aboutIntro: string; processTitle: string; teamTitle: string; teamHeading: string;
+    aboutTitle: string; aboutIntro: string; processTitle: string; processHeading: string; step: string;
+    teamTitle: string; teamHeading: string;
+    aboutStatProjects: string; aboutStatInvested: string; aboutStatCheque: string; aboutStage: string; aboutStageLabel: string;
+    birdTitle: string; birdBody: string; birdChip1: string; birdChip2: string; birdChip3: string;
     newsTitle: string; newsH1: string; upcoming: string; archive: string;
     partnersTitle: string; partnersH1: string;
     contactTitle: string; contactH1: string; contactDetails: string; openMap: string;
@@ -79,7 +82,13 @@ export const UI: Record<Locale, Dict> = {
       introVideo: "Intro video · 2:14", ctaTitle: "Gʻoyangiz bormi? Bugun boshlang.",
       sector: "Soha", investment: "Sarmoya",
       aboutTitle: "Biz haqimizda", aboutIntro: "Startapingizga birinchi ishonadigan bizmiz.",
-      processTitle: "Jarayon", teamTitle: "Jamoa", teamHeading: "Sizni eshitadigan odamlar",
+      processTitle: "Jarayon", processHeading: "Arizadan investitsiyagacha, 4 qadam", step: "Qadam",
+      teamTitle: "Jamoa", teamHeading: "Sizni eshitadigan odamlar",
+      aboutStatProjects: "portfel loyihasi", aboutStatInvested: "jami investitsiya", aboutStatCheque: "soʻmgacha cheklov",
+      aboutStage: "Pre-seed", aboutStageLabel: "asosiy bosqich",
+      birdTitle: "Logotipimizdagi qush bejizga emas",
+      birdBody: "Har bir gʻoya uchishni xohlaydi. Sizga faqat ozgina ishonch va yoʻl koʻrsatuvchi kerak. Biz aynan shunday qanot boʻlamiz.",
+      birdChip1: "Erta bosqich", birdChip2: "Ochiq shartlar", birdChip3: "Uzoq muddatli hamrohlik",
       newsTitle: "Yangiliklar", newsH1: "Yangiliklar va tadbirlar", upcoming: "Yaqinlashayotgan tadbirlar", archive: "Arxiv",
       partnersTitle: "Hamkorlar", partnersH1: "Bizga ishongan hamkorlarimiz",
       contactTitle: "Kontaktlar", contactH1: "Savolingiz bormi? Yozing.", contactDetails: "Aloqa maʼlumotlari", openMap: "Xaritada ochish",
@@ -124,7 +133,13 @@ export const UI: Record<Locale, Dict> = {
       introVideo: "Интро-видео · 2:14", ctaTitle: "Есть идея? Начните сегодня.",
       sector: "Сфера", investment: "Инвестиции",
       aboutTitle: "О нас", aboutIntro: "Мы верим в ваш стартап первыми.",
-      processTitle: "Процесс", teamTitle: "Команда", teamHeading: "Люди, которые вас услышат",
+      processTitle: "Процесс", processHeading: "От заявки до инвестиции — 4 шага", step: "Шаг",
+      teamTitle: "Команда", teamHeading: "Люди, которые вас услышат",
+      aboutStatProjects: "проектов в портфеле", aboutStatInvested: "всего инвестиций", aboutStatCheque: "максимальный чек",
+      aboutStage: "Pre-seed", aboutStageLabel: "основной этап",
+      birdTitle: "Птица в нашем логотипе не случайна",
+      birdBody: "Каждая идея хочет взлететь. Нужны лишь немного веры и проводник. Мы и есть эти крылья.",
+      birdChip1: "Ранняя стадия", birdChip2: "Прозрачные условия", birdChip3: "Долгосрочное сопровождение",
       newsTitle: "Новости", newsH1: "Новости и мероприятия", upcoming: "Ближайшие мероприятия", archive: "Архив",
       partnersTitle: "Партнёры", partnersH1: "Партнёры, которые нам доверяют",
       contactTitle: "Контакты", contactH1: "Есть вопрос? Напишите.", contactDetails: "Контактные данные", openMap: "Открыть на карте",
@@ -169,7 +184,13 @@ export const UI: Record<Locale, Dict> = {
       introVideo: "Intro video · 2:14", ctaTitle: "Got an idea? Start today.",
       sector: "Sector", investment: "Investment",
       aboutTitle: "About us", aboutIntro: "We are the first to believe in your startup.",
-      processTitle: "Process", teamTitle: "Team", teamHeading: "The people who will listen",
+      processTitle: "Process", processHeading: "From application to investment in 4 steps", step: "Step",
+      teamTitle: "Team", teamHeading: "The people who will listen",
+      aboutStatProjects: "portfolio companies", aboutStatInvested: "invested to date", aboutStatCheque: "maximum cheque",
+      aboutStage: "Pre-seed", aboutStageLabel: "core stage",
+      birdTitle: "The bird in our logo is no accident",
+      birdBody: "Every idea wants to fly. All it needs is a little belief and a guide. That is exactly the wing we become.",
+      birdChip1: "Early stage", birdChip2: "Transparent terms", birdChip3: "Long-term partnership",
       newsTitle: "News", newsH1: "News and events", upcoming: "Upcoming events", archive: "Archive",
       partnersTitle: "Partners", partnersH1: "Partners who trust us",
       contactTitle: "Contact", contactH1: "Have a question? Write to us.", contactDetails: "Contact details", openMap: "Open in Maps",

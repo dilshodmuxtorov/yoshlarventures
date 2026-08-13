@@ -34,6 +34,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const bandA = bci >= 0 ? bandText.slice(0, bci + 1) : bandText;
   const bandB = bci >= 0 ? bandText.slice(bci + 2) : "";
   const beliefPill = g.beliefPill;
+  const youtubeUrl = d.company.youtube_url || "https://www.youtube.com/@yoshlarventures";
 
   return (
     <>
@@ -41,15 +42,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ── Stats bar ── */}
       <section style={{ borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)", background: "var(--card)" }}>
-        <dl className="container-yv !px-5 grid grid-cols-3 items-start" style={{ marginBlock: 0 }}>
+        <dl className="container-yv !px-5 statbar" style={{ marginBlock: 0 }}>
           {[
             { v: `${d.portfel.length || 14}+`, l: g.statProjects },
             { v: x.stat1 || "$300K+", l: g.statInvested },
             { v: x.stat3 || "2 mlrd", l: g.statCheque, accent: true },
           ].map((st, i) => (
-            <div key={i} style={{ padding: "clamp(22px,3.4vw,32px) clamp(16px,2vw,24px)", borderRight: i < 2 ? "1px solid var(--hair)" : undefined }}>
+            <div key={i}>
               <dt className="font-display" style={{ fontSize: "clamp(26px,5.6vw,62px)", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 1, color: st.accent ? "var(--orange)" : "var(--ink)" }}>{st.v}</dt>
-              <dd style={{ margin: "8px 0 0", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600, lineHeight: 1.45, color: "var(--n500)" }}>{st.l}</dd>
+              <dd style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600, lineHeight: 1.45, color: "var(--n500)" }}>{st.l}</dd>
             </div>
           ))}
         </dl>
@@ -212,12 +213,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <p style={{ margin: "20px 0 0", fontSize: 17, lineHeight: 1.7, color: "var(--n500)", maxWidth: "52ch" }}>{x.storyText}</p>
             </div>
             <div className="yv-card" style={{ boxShadow: "var(--elev)" }}>
-              <div className="yv-card-inner relative overflow-hidden" style={{ background: "#141414" }}>
+              {/* The whole card is the link, as in the design — a play button that
+                  does nothing is the one thing a reader will certainly click. */}
+              <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="yv-card-inner relative overflow-hidden block" style={{ background: "#141414" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/yv/startup-card.png" alt="" style={{ width: "100%", height: "clamp(240px,32vw,360px)", objectFit: "cover", opacity: 0.72 }} />
-                <span className="grid place-items-center text-white" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 76, height: 76, borderRadius: 999, background: "var(--orange)", fontSize: 22, boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>▶</span>
+                <span aria-hidden className="grid place-items-center text-white" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 76, height: 76, borderRadius: 999, background: "var(--orange)", fontSize: 22, boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>▶</span>
                 <span style={{ position: "absolute", left: 20, bottom: 18, color: "#fff", fontSize: 12, fontWeight: 600, letterSpacing: "0.02em" }}>{x.videoNote || g.introVideo}</span>
-              </div>
+              </a>
             </div>
           </div>
         </section>
@@ -278,7 +281,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div style={{ position: "relative", borderRadius: 32, overflow: "hidden", background: "var(--band)", padding: "clamp(40px,6.5vw,96px)" }}>
             <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(180deg,rgba(255,255,255,.05) 1px,transparent 1px)", backgroundSize: "104px 104px" }} />
             <div aria-hidden style={{ position: "absolute", right: -90, bottom: -120, width: "min(460px, 90vw)", height: "min(460px, 90vw)", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,122,26,.55), transparent 62%)" }} />
-            <Image src="/yv/logo3d.png" alt="" aria-hidden width={320} height={316} className="hidden md:block floaty" style={{ position: "absolute", right: -30, bottom: -50, width: "min(320px,42%)", height: "auto", opacity: 0.92 }} />
+            <Image src="/yv/logo3d.png" alt="" aria-hidden width={320} height={316} className="floaty" style={{ position: "absolute", right: -30, bottom: -50, width: "min(320px,42%)", height: "auto", opacity: 0.92 }} />
             <div className="relative" style={{ maxWidth: "36ch" }}>
               <span style={{ display: "block", width: 64, height: 4, borderRadius: 8, background: "var(--lime)" }} />
               <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.045em", fontSize: "clamp(34px,6.4vw,80px)", lineHeight: 0.98, margin: "26px 0 0", color: "#fff", maxWidth: "12ch" }}>

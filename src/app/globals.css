@@ -81,12 +81,16 @@
 html {
   scroll-behavior: smooth;
   /* A single stray wide element should degrade to a clipped edge, never to a
-     page that scrolls sideways under the reader's thumb. */
-  overflow-x: hidden;
+     page that scrolls sideways under the reader's thumb. `clip`, not `hidden`:
+     `hidden` turns the element into a scroll container, and every `position:
+     sticky` descendant then sticks to that container instead of the viewport —
+     which silently killed the apply page's sticky aside. `clip` cuts the
+     overflow off without creating a scrollport. */
+  overflow-x: clip;
 }
 
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-jakarta), system-ui, sans-serif;
@@ -188,6 +192,41 @@ h1, h2, h3, h4, .font-display {
   transition: transform 0.5s var(--ease), background 0.4s var(--ease);
 }
 .btn-outline:hover { transform: translateY(-3px); background: var(--shell); }
+
+/* ── Hero and stats bar, at the design's own phone breakpoint (680px) ───────
+   Tailwind's sm/md/lg land at 640/768/1024; the design switches these three
+   pieces at 680, so they are written out here rather than snapped to the
+   nearest utility breakpoint. */
+.hero-art { width: min(420px, 100%); }
+.hero-title { font-size: clamp(36px, 4.8vw, 68px); max-width: 18ch; }
+
+.statbar { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; }
+.statbar > div { padding: clamp(22px, 3.4vw, 32px) clamp(16px, 2vw, 24px); border-right: 1px solid var(--hair); }
+.statbar > div:last-child { border-right: 0; }
+.statbar dd { margin: 8px 0 0; }
+
+@media (max-width: 679px) {
+  /* The illustration shrinks on a phone but stays: it is the only image above
+     the fold, and the design places it under the copy rather than dropping it. */
+  .hero-art { width: min(420px, 62%); }
+  /* 18ch is measured against the heading's own font, so on a 390px screen it
+     resolved wider than the screen. The design drops the cap and the size
+     together instead of capping at the column width. */
+  .hero-title { font-size: clamp(29px, 8.4vw, 36px); max-width: none; }
+  /* Two CTAs share the row instead of wrapping; the arrow badge would leave no
+     room for the label at half width. */
+  .hero-cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hero-cta > a { width: 100%; justify-content: center; gap: 8px; padding-inline: 14px; text-align: center; }
+  .hero-cta .badge { display: none; }
+  /* Three numbers side by side leave ~110px each on a phone. They become rows,
+     figure left and label right. */
+  /* align-items is inherited from the grid rule above; left at `start` the rows
+     would shrink to their content and the rules between them would stop short. */
+  .statbar { display: flex; flex-direction: column; align-items: stretch; }
+  .statbar > div { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding: 16px 0; border-right: 0; border-bottom: 1px solid var(--hair); }
+  .statbar > div:last-child { border-bottom: 0; }
+  .statbar dd { margin: 0; text-align: right; }
+}
 
 .section { padding-block: clamp(64px, 8vw, 112px); }
 .container-yv {

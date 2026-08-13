@@ -78,7 +78,9 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
       <div aria-hidden className="absolute inset-0 -z-10" style={{ background: "radial-gradient(120% 90% at 72% -10%, var(--warm) 0%, transparent 55%)" }} />
       <div aria-hidden className="absolute inset-0 -z-10 opacity-60" style={{ backgroundImage: "linear-gradient(var(--hair) 1px, transparent 1px), linear-gradient(90deg, var(--hair) 1px, transparent 1px)", backgroundSize: "48px 48px", WebkitMaskImage: "radial-gradient(80% 60% at 50% 0%, #000 0%, transparent 80%)", maskImage: "radial-gradient(80% 60% at 50% 0%, #000 0%, transparent 80%)" }} />
 
-      <div className="container-yv pt-28 md:pt-36 pb-16 md:pb-24 grid gap-10 lg:grid-cols-[1.1fr_.9fr] items-center">
+      {/* Two columns from 980px up, which is where the design splits them; below
+          that the illustration sits under the copy rather than beside it. */}
+      <div className="container-yv pt-28 md:pt-36 pb-16 md:pb-24 grid gap-10 min-[980px]:grid-cols-[1.15fr_.85fr] items-center">
         <div>
           {texts.pill && (
             <span className="inline-flex items-center font-semibold uppercase mb-5" style={{ gap: 9, padding: "7px 15px 7px 7px", borderRadius: 999, background: "var(--warm)", color: "var(--warm-ink)", fontSize: 12, letterSpacing: "0.16em", border: "1px solid rgba(255,122,26,.16)" }}>
@@ -93,21 +95,21 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
               wrong wherever the text wraps differently — in English the longest
               string is not the tallest, and the heading overflowed upward over
               the pill above it. */}
-          <div className="grid w-full sm:w-max max-w-full">
+          <div className="grid w-full min-[680px]:w-max max-w-full">
             {pairs.map((p, i) => (
               <div
                 key={i}
                 aria-hidden
-                className="invisible font-display font-bold"
-                style={{ gridArea: "1 / 1", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "min(18ch, 100%)" }}
+                className="invisible font-display font-bold hero-title"
+                style={{ gridArea: "1 / 1", letterSpacing: "-0.04em", lineHeight: 1.04 }}
               >
                 <span className="block">{p.q}</span>
                 <span className="block">{p.a}</span>
               </div>
             ))}
             <h1
-              className="font-display font-bold"
-              style={{ gridArea: "1 / 1", alignSelf: "end", fontSize: "clamp(36px,4.8vw,68px)", letterSpacing: "-0.04em", lineHeight: 1.04, maxWidth: "min(18ch, 100%)" }}
+              className="font-display font-bold hero-title"
+              style={{ gridArea: "1 / 1", alignSelf: "start", letterSpacing: "-0.04em", lineHeight: 1.04 }}
             >
               <span className="block">{shownQ}</span>
               <span className="block" style={{ color: "var(--orange)" }}>
@@ -125,7 +127,7 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
             </div>
           )}
 
-          <div className="flex flex-wrap" style={{ gap: 12, marginTop: 20 }}>
+          <div className="hero-cta flex flex-wrap" style={{ gap: 12, marginTop: 20 }}>
             <Link href={applyHref} className="btn-primary">
               {texts.cta || applyLabel}
               <span className="badge">↗</span>
@@ -136,12 +138,11 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
           </div>
         </div>
 
-        <div className="hidden lg:flex justify-center items-center relative">
+        <div className="flex justify-center items-center relative">
           {/* orange gradient shell, tilted -4deg, with the floating 3D logo inside */}
           <div
-            className="relative"
+            className="relative hero-art"
             style={{
-              width: "min(420px,100%)",
               aspectRatio: "1 / 1.06",
               borderRadius: 40,
               padding: 6,
@@ -154,7 +155,8 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
               className="h-full grid place-items-center overflow-hidden"
               style={{ borderRadius: 34, background: "linear-gradient(160deg,#FF8B2E,#FF6F0D)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.45)" }}
             >
-              <Image src="/yv/logo3d.png" alt="Yoshlar Ventures" width={440} height={434} priority className="floaty w-[78%] h-auto" style={{ filter: "drop-shadow(0 30px 40px rgba(20,20,20,.35))" }} />
+              {/* preload, not priority: priority is deprecated as of Next 16. */}
+              <Image src="/yv/logo3d.png" alt="Yoshlar Ventures" width={440} height={434} preload className="floaty w-[78%] h-auto" style={{ filter: "drop-shadow(0 30px 40px rgba(20,20,20,.35))" }} />
             </div>
           </div>
         </div>

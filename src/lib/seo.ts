@@ -91,7 +91,7 @@ export function organizationJsonLd(company: {
     "@type": "Organization",
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
+    logo: `${SITE_URL}/yv/logo.png`,
     description: DEFAULTS.uz.description,
     email: company.email || undefined,
     telephone: company.phone_number || undefined,
