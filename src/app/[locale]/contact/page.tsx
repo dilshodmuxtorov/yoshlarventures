@@ -48,7 +48,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                   src={`https://maps.google.com/maps?q=${encodeURIComponent(company.address)}&z=16&output=embed`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full aspect-video rounded-2xl border-0"
+                  className="w-full aspect-[4/3] sm:aspect-video min-h-[240px] rounded-2xl border-0"
                   style={{ background: "var(--warm)" }}
                 />
                 <a

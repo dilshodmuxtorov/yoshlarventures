@@ -133,7 +133,7 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
               ))}
             </div>
           </Field>
-          <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 sm:items-end">
             <Field label={t.amount}><input inputMode="numeric" className={ic} style={inputStyle} value={g("investitsiyaMiqdori")} onChange={(e) => set("investitsiyaMiqdori", e.target.value)} placeholder={t.amountPh} /></Field>
             <Field label={t.currency}>
               <div className="flex gap-2">
@@ -149,14 +149,14 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
           <Field label={t.spendPlan}><textarea rows={3} className="w-full rounded-xl border px-4 py-3 text-sm resize-y" style={inputStyle} value={g("mablagniSarflash")} onChange={(e) => set("mablagniSarflash", e.target.value)} /></Field>
           <Field label={t.hasAccel}><YesNo value={g("akseleratsiya")} onChange={(v) => set("akseleratsiya", v)} yes={t.yes} no={t.no} /></Field>
           {g("akseleratsiya") === "Ha" && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label={t.programName}><input className={ic} style={inputStyle} value={g("dasturNomi")} onChange={(e) => set("dasturNomi", e.target.value)} /></Field>
               <Field label={t.programYear}><input className={ic} style={inputStyle} value={g("dasturYili")} onChange={(e) => set("dasturYili", e.target.value)} /></Field>
             </div>
           )}
           <Field label={t.hasCompetition}><YesNo value={g("tanlov")} onChange={(v) => set("tanlov", v)} yes={t.yes} no={t.no} /></Field>
           {g("tanlov") === "Ha" && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label={t.competitionName}><input className={ic} style={inputStyle} value={g("tanlovNomi")} onChange={(e) => set("tanlovNomi", e.target.value)} /></Field>
               <Field label={t.competitionYear}><input className={ic} style={inputStyle} value={g("tanlovYili")} onChange={(e) => set("tanlovYili", e.target.value)} /></Field>
             </div>
@@ -167,11 +167,11 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
       {step === 3 && (
         <div className="space-y-4">
           <h2 className="font-display font-semibold text-lg">{t.s3}</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label={t.fullName}><input className={ic} style={inputStyle} value={g("arizachiToliqIsmi")} onChange={(e) => set("arizachiToliqIsmi", e.target.value)} /></Field>
             <Field label={t.age}><input type="number" className={ic} style={inputStyle} value={g("yoshi")} onChange={(e) => set("yoshi", e.target.value)} /></Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label={t.role}><input className={ic} style={inputStyle} value={g("roli")} onChange={(e) => set("roli", e.target.value)} placeholder={t.rolePh} /></Field>
             <Field label={t.gender}>
               <select className={ic} style={inputStyle} value={g("jinsi")} onChange={(e) => set("jinsi", e.target.value)}>
@@ -215,7 +215,7 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
       {step === 4 && (
         <div className="space-y-4">
           <h2 className="font-display font-semibold text-lg">{t.s4}</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label={t.phone}><input type="tel" className={ic} style={inputStyle} value={g("telRaqami")} onChange={(e) => set("telRaqami", e.target.value)} /></Field>
             <Field label={t.email}><input type="email" className={ic} style={inputStyle} value={g("email")} onChange={(e) => set("email", e.target.value)} /></Field>
           </div>
