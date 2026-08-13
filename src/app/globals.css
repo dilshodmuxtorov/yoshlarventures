@@ -29,6 +29,7 @@
   --navbg: rgba(255, 255, 255, 0.72);
   --overlay: rgba(251, 251, 250, 0.92);
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --danger: #d92d20;
   --bg: var(--surface);
   --fg: var(--ink);
 }
@@ -51,6 +52,8 @@
   --band: #22262f;
   --band-ink: #f4f5f7;
   --hi: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* Lifted off the light value, which fails contrast on the dark surface. */
+  --danger: #ff8a7a;
   --bg: var(--surface);
   --fg: var(--ink);
 }

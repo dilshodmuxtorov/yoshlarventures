@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import SafeImage from "@/components/SafeImage";
 import { Monogram } from "@/components/ui";
 import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
@@ -130,10 +131,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                   <article key={m.id} className="yv-card">
                     <div className="yv-card-inner overflow-hidden">
                       <div className="aspect-[3/4] grid place-items-center" style={{ background: "var(--warm)" }}>
-                        {s(m, "photo_url") ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={s(m, "photo_url")} alt={s(m, "full_name")} className="w-full h-full object-cover" />
-                        ) : (<Monogram text={s(m, "full_name")} size={64} />)}
+                        <SafeImage
+                          src={s(m, "photo_url")}
+                          alt={s(m, "full_name")}
+                          className="w-full h-full object-cover"
+                          fallback={<Monogram text={s(m, "full_name")} size={64} />}
+                        />
                       </div>
                       <div style={{ padding: "18px 20px 22px" }}>
                         <h3 className="font-display" style={{ fontSize: 17, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>{s(m, "full_name")}</h3>

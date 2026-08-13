@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
+import SafeImage from "@/components/SafeImage";
+import { Monogram } from "@/components/ui";
 import { getHomeData, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 
@@ -186,12 +188,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {d.news.slice(0, 3).map((n) => (
               <article key={n.id} className="yv-card yv-card-hover">
                 <div className="yv-card-inner overflow-hidden flex flex-col h-full">
-                  {s(n, "image_url") ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={s(n, "image_url")} alt={s(n, "title")} style={{ width: "100%", height: 180, objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ height: 180, background: "var(--warm)" }} />
-                  )}
+                  <SafeImage
+                    src={s(n, "image_url")}
+                    alt={s(n, "title")}
+                    style={{ width: "100%", height: 180, objectFit: "cover" }}
+                    fallback={<div style={{ height: 180, background: "var(--warm)" }} />}
+                  />
                   <div className="flex flex-col gap-2.5 flex-1" style={{ padding: 24 }}>
                     <h3 className="font-display" style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>{s(n, "title")}</h3>
                     <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--n500)" }}>{s(n, "body")}</p>
@@ -236,12 +238,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {d.team.map((m) => (
               <article key={m.id} className="yv-card" style={{ flex: "0 0 clamp(230px,72vw,260px)" }}>
                 <div className="yv-card-inner overflow-hidden">
-                  {s(m, "photo_url") ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={s(m, "photo_url")} alt={s(m, "full_name")} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ aspectRatio: "3/4", background: "var(--warm)" }} />
-                  )}
+                  <SafeImage
+                    src={s(m, "photo_url")}
+                    alt={s(m, "full_name")}
+                    style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover" }}
+                    fallback={
+                      <div className="grid place-items-center" style={{ aspectRatio: "3/4", background: "var(--warm)" }}>
+                        <Monogram text={s(m, "full_name")} size={64} />
+                      </div>
+                    }
+                  />
                   <div style={{ padding: "18px 20px 22px" }}>
                     <h3 className="font-display" style={{ fontSize: 17, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>{s(m, "full_name")}</h3>
                     <p style={{ margin: "5px 0 0", fontSize: 14, color: "var(--n500)" }}>{s(m, "position")}</p>
@@ -263,10 +269,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <Marquee durationSec={34} gap={14}>
               {d.logos.map((l) => (
                 <span key={l.id} style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px 10px 10px", borderRadius: 999, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--hi)", fontSize: 15, fontWeight: 600, color: "var(--n700)", whiteSpace: "nowrap" }}>
-                  {s(l, "logo_url") ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={s(l, "logo_url")} alt={s(l, "name")} width={36} height={36} style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0 }} />
-                  ) : null}
+                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0 }} fallback={null} />
                   {s(l, "name")}
                 </span>
               ))}

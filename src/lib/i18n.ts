@@ -62,6 +62,7 @@ type Dict = {
     disclaimer: string;
     back: string; next: string; submit: string; sending: string;
     yes: string; no: string; choose: string;
+    allRequired: string; required: string; requiredChoice: string; requiredAny: string; fixErrors: string;
     sentTitle: string; sentBody: string;
   };
 };
@@ -114,6 +115,9 @@ export const UI: Record<Locale, Dict> = {
       disclaimer: "Eslatma. Ushbu arizani yuborish investitsiyani kafolatlamaydi. Yoshlar Ventures barcha maʼlumotlarni maxfiy saqlaydi.",
       back: "Orqaga", next: "Davom etish →", submit: "Ariza yuborish", sending: "Yuborilmoqda…",
       yes: "Ha", no: "Yoʻq", choose: "—",
+      allRequired: "Barcha maydonlar toʻldirilishi shart.",
+      required: "Bu maydonni toʻldiring", requiredChoice: "Variantni tanlang", requiredAny: "Kamida bittasini tanlang",
+      fixErrors: "Davom etish uchun barcha maydonlarni toʻldiring.",
       sentTitle: "Arizangiz qabul qilindi",
       sentBody: "Rahmat! Arizangizni koʻrib chiqamiz va javob xatini email orqali yuboramiz.",
     },
@@ -165,6 +169,9 @@ export const UI: Record<Locale, Dict> = {
       disclaimer: "Примечание. Подача заявки не гарантирует инвестиции. Yoshlar Ventures хранит все данные конфиденциально.",
       back: "Назад", next: "Продолжить →", submit: "Отправить заявку", sending: "Отправляется…",
       yes: "Да", no: "Нет", choose: "—",
+      allRequired: "Все поля обязательны для заполнения.",
+      required: "Заполните это поле", requiredChoice: "Выберите вариант", requiredAny: "Выберите хотя бы один вариант",
+      fixErrors: "Чтобы продолжить, заполните все поля.",
       sentTitle: "Заявка принята",
       sentBody: "Спасибо! Мы рассмотрим вашу заявку и отправим ответное письмо на email.",
     },
@@ -216,6 +223,9 @@ export const UI: Record<Locale, Dict> = {
       disclaimer: "Note. Submitting this application does not guarantee investment. Yoshlar Ventures keeps all information confidential.",
       back: "Back", next: "Continue →", submit: "Submit application", sending: "Sending…",
       yes: "Yes", no: "No", choose: "—",
+      allRequired: "Every field is required.",
+      required: "Please fill in this field", requiredChoice: "Choose an option", requiredAny: "Choose at least one",
+      fixErrors: "Fill in every field to continue.",
       sentTitle: "Your application has been received",
       sentBody: "Thank you! We will review your application and send our reply by email.",
     },
