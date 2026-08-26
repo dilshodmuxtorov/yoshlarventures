@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import SafeImage from "@/components/SafeImage";
-import { Card, Monogram, Pill } from "@/components/ui";
-import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
+import PortfolioExplorer from "@/components/PortfolioExplorer";
+import { Pill } from "@/components/ui";
+import { getCollection, getPageTexts } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
+import { formatK, totalInvestedK } from "@/lib/portfolio";
 import { pageMetadata } from "@/lib/seo";
-
-const s = (r: ContentRecord, k: string) => (typeof r[k] === "string" ? (r[k] as string) : "");
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -25,6 +24,10 @@ export default async function PortfolioPage({ params }: { params: Promise<{ loca
   const t = UI[loc];
   const [{ texts }, { items }] = await Promise.all([getPageTexts("portfolio", loc), getCollection("portfel", loc)]);
 
+  // Both figures are derived from the collection itself, so adding a startup in
+  // the dashboard moves them without anyone editing a page text.
+  const invested = formatK(totalInvestedK(items));
+
   return (
     <div className="section">
       <div className="container-yv">
@@ -32,26 +35,57 @@ export default async function PortfolioPage({ params }: { params: Promise<{ loca
         <h1 className="font-display font-bold mt-4" style={{ fontSize: "clamp(30px,5vw,56px)" }}>{texts.h1 || UI[loc].page.secPortfolio}</h1>
         {texts.intro && <p className="mt-4 text-lg max-w-2xl" style={{ color: "var(--n500)" }}>{texts.intro}</p>}
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 mt-10">
-          {items.map((c) => (
-            <article key={c.id}>
-              <Card>
-                <SafeImage
-                  src={s(c, "image_url")}
-                  alt={s(c, "name")}
-                  style={{ width: 56, height: 56, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
-                  fallback={<Monogram text={s(c, "name")} />}
-                />
-                <h2 className="font-display font-semibold text-lg mt-4">{s(c, "name")}</h2>
-                <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(c, "short_description")}</p>
-                <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-2 text-sm" style={{ borderColor: "var(--hair)" }}>
-                  <div><span className="eyebrow block">{UI[loc].page.sector}</span>{s(c, "sector")}</div>
-                  <div className="text-right"><span className="eyebrow block">{UI[loc].page.investment}</span><span style={{ color: "var(--orange)" }} className="font-semibold">{s(c, "investment_thousand_usd")}</span></div>
+        {items.length > 0 && (
+          <dl
+            className="grid grid-cols-1 sm:grid-cols-2 mt-10"
+            style={{ borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)" }}
+          >
+            {[
+              { v: `${items.length}`, l: t.page.companies },
+              { v: invested, l: t.page.totalInvested, accent: true },
+            ]
+              .filter((st) => st.v)
+              .map((st, i) => (
+                <div key={i} style={{ padding: "26px 4px" }}>
+                  <dt
+                    className="font-display"
+                    style={{
+                      fontSize: "clamp(30px,5vw,56px)",
+                      fontWeight: 700,
+                      letterSpacing: "-0.04em",
+                      lineHeight: 1,
+                      color: st.accent ? "var(--orange)" : "var(--ink)",
+                    }}
+                  >
+                    {st.v}
+                  </dt>
+                  <dd
+                    style={{
+                      marginTop: 8,
+                      fontSize: 12,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      fontWeight: 600,
+                      color: "var(--n500)",
+                    }}
+                  >
+                    {st.l}
+                  </dd>
                 </div>
-              </Card>
-            </article>
-          ))}
-        </div>
+              ))}
+          </dl>
+        )}
+
+        <PortfolioExplorer
+          items={items}
+          labels={{
+            sector: t.page.sector,
+            investment: t.page.investment,
+            close: t.page.close,
+            visitSite: t.page.visitSite,
+            aboutStartup: t.page.aboutStartup,
+          }}
+        />
 
         {items.length === 0 && <p className="mt-10" style={{ color: "var(--n500)" }}>{t.misc.empty}</p>}
 

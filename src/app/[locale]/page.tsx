@@ -9,6 +9,7 @@ import SafeImage from "@/components/SafeImage";
 import { Monogram } from "@/components/ui";
 import { getHomeData, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
+import { formatK, totalInvestedK } from "@/lib/portfolio";
 
 const s = (r: ContentRecord, k: string) => (typeof r[k] === "string" ? (r[k] as string) : "");
 const mono = (name: string) => (name || "?").trim().slice(0, 2);
@@ -37,6 +38,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const bandB = bci >= 0 ? bandText.slice(bci + 2) : "";
   const beliefPill = g.beliefPill;
   const youtubeUrl = d.company.youtube_url || "https://www.youtube.com/@yoshlarventures";
+  // Summed from the portfel collection, so a new startup moves the headline
+  // figure on its own. Falls back to the hand-written page text if nothing
+  // in the collection carries a parseable amount.
+  const investedTotal = formatK(totalInvestedK(d.portfel));
 
   return (
     <>
@@ -47,7 +52,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <dl className="container-yv !px-5 statbar" style={{ marginBlock: 0 }}>
           {[
             { v: `${d.portfel.length || 14}+`, l: g.statProjects },
-            { v: x.stat1 || "$300K+", l: g.statInvested },
+            { v: investedTotal ? `${investedTotal}+` : x.stat1 || "$300K+", l: g.statInvested },
             { v: x.stat3 || "2 mlrd", l: g.statCheque, accent: true },
           ].map((st, i) => (
             <div key={i}>
@@ -107,7 +112,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
             <Link href={p("/portfolio")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAll}</Link>
           </div>
-          <Marquee durationSec={60} gap={18}>
+          <Marquee durationSec={120} gap={18}>
             {d.portfel.map((c, i) => (
               <article key={c.id} className="yv-card yv-card-hover" style={{ flex: "0 0 clamp(268px,80vw,344px)", borderRadius: 24, padding: 0, background: "var(--card)", boxShadow: "var(--elev-sm)", position: "relative", overflow: "hidden", display: "flex" }}>
                 {/* Column layout with the footer pinned to the bottom so the sector and
@@ -162,7 +167,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {d.projects.map((pr) => {
               const inner = (
                 <div className="yv-card-inner flex flex-col gap-[14px] h-full" style={{ padding: 24 }}>
-                  <span className="font-display grid place-items-center text-white" style={{ width: 64, height: 64, borderRadius: 16, background: "linear-gradient(160deg,#FF8B2E,#FF6F0D)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>{s(pr, "mark") || mono(s(pr, "name"))}</span>
+                  <SafeImage
+                    src={s(pr, "image_url")}
+                    alt={s(pr, "name")}
+                    style={{ width: 64, height: 64, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
+                    fallback={<span className="font-display grid place-items-center text-white" style={{ width: 64, height: 64, borderRadius: 16, background: "linear-gradient(160deg,#FF8B2E,#FF6F0D)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>{s(pr, "mark") || mono(s(pr, "name"))}</span>}
+                  />
                   <div className="flex flex-col gap-1.5">
                     <span style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: "var(--orange-ink)" }}>{s(pr, "kind")}</span>
                     <h3 className="font-display" style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>{s(pr, "name")}</h3>
@@ -239,7 +249,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="container-yv">
             <h2 className="section-title">{x.secTeam || g.secTeam}</h2>
           </div>
-          <Marquee durationSec={55} gap={18}>
+          <Marquee durationSec={110} gap={18}>
             {d.team.map((m) => (
               <article key={m.id} className="yv-card" style={{ flex: "0 0 clamp(230px,72vw,260px)" }}>
                 <div className="yv-card-inner overflow-hidden">

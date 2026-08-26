@@ -33,10 +33,23 @@ export function Pill({ children }: { children: ReactNode }) {
   );
 }
 
-export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
+/** `media` renders edge-to-edge above the padded body — the inner element is the
+ *  one with the rounded corners, so the clipping has to happen there. */
+export function Card({
+  children,
+  className = "",
+  media,
+}: {
+  children: ReactNode;
+  className?: string;
+  media?: ReactNode;
+}) {
   return (
     <div className={`yv-card h-full ${className}`}>
-      <div className="yv-card-inner p-6">{children}</div>
+      <div className="yv-card-inner overflow-hidden h-full flex flex-col">
+        {media}
+        <div className="p-6 flex-1">{children}</div>
+      </div>
     </div>
   );
 }

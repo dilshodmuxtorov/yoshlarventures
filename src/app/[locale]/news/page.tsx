@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import SafeImage from "@/components/SafeImage";
 import { Card, Pill } from "@/components/ui";
 import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
@@ -40,7 +41,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
             <h2 className="eyebrow mb-5">{texts.upTitle || UI[loc].page.upcoming}</h2>
             <div className="grid gap-5 md:grid-cols-3">
               {upcoming.items.map((e) => (
-                <article key={e.id}><Card>
+                <article key={e.id}><Card media={<SafeImage src={s(e, "image_url")} alt={s(e, "name")} style={{ width: "100%", height: 160, objectFit: "cover" }} fallback={null} />}>
                   <span className="inline-block text-xs px-2.5 py-1 rounded-full mb-3" style={{ background: "var(--warm)", color: "var(--warm-ink)" }}>{s(e, "date_place")}</span>
                   <h3 className="font-display font-semibold text-lg">{s(e, "name")}</h3>
                   <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(e, "description")}</p>
@@ -55,7 +56,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
             <h2 className="eyebrow mb-5">Telegram</h2>
             <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 [&>*]:mb-5 [&>*]:break-inside-avoid">
               {feed.items.map((n) => (
-                <article key={n.id}><Card>
+                <article key={n.id}><Card media={<SafeImage src={s(n, "image_url")} alt={s(n, "title")} style={{ width: "100%", height: 180, objectFit: "cover" }} fallback={null} />}>
                   <p className="eyebrow">{s(n, "source") || "Yoshlar Ventures"} · {s(n, "date_text")}</p>
                   <h3 className="font-display font-semibold mt-2">{s(n, "title")}</h3>
                   <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(n, "body")}</p>
@@ -70,7 +71,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
             <h2 className="eyebrow mb-5">{texts.archTitle || UI[loc].page.archive}</h2>
             <div className="grid gap-5 md:grid-cols-3">
               {archive.items.map((e) => (
-                <article key={e.id}><Card>
+                <article key={e.id}><Card media={<SafeImage src={s(e, "image_url")} alt={s(e, "name")} style={{ width: "100%", height: 160, objectFit: "cover" }} fallback={null} />}>
                   <p className="eyebrow">{s(e, "month_year")}</p>
                   <h3 className="font-display font-semibold text-lg mt-1">{s(e, "name")}</h3>
                   <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(e, "outcome")}</p>

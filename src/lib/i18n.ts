@@ -33,6 +33,7 @@ type Dict = {
     bandTitle: string; bandBody: string; beliefPill: string;
     ecosystem: string; seeAll: string; seeAllShort: string; more: string; introVideo: string; ctaTitle: string;
     sector: string; investment: string;
+    totalInvested: string; companies: string; close: string; visitSite: string; aboutStartup: string;
     aboutTitle: string; aboutIntro: string; processTitle: string; processHeading: string; step: string;
     teamTitle: string; teamHeading: string;
     aboutStatProjects: string; aboutStatInvested: string; aboutStatCheque: string; aboutStage: string; aboutStageLabel: string;
@@ -82,6 +83,8 @@ export const UI: Record<Locale, Dict> = {
       ecosystem: "Ekotizim", seeAll: "Barchasini koʻrish ↗", seeAllShort: "Barchasi ↗", more: "Batafsil ↗",
       introVideo: "Intro video · 2:14", ctaTitle: "Gʻoyangiz bormi? Bugun boshlang.",
       sector: "Soha", investment: "Sarmoya",
+      totalInvested: "Jami sarmoya", companies: "Portfel kompaniyalari", close: "Yopish",
+      visitSite: "Saytga oʻtish", aboutStartup: "Startap haqida",
       aboutTitle: "Biz haqimizda", aboutIntro: "Startapingizga birinchi ishonadigan bizmiz.",
       processTitle: "Jarayon", processHeading: "Arizadan investitsiyagacha, 4 qadam", step: "Qadam",
       teamTitle: "Jamoa", teamHeading: "Sizni eshitadigan odamlar",
@@ -136,6 +139,8 @@ export const UI: Record<Locale, Dict> = {
       ecosystem: "Экосистема", seeAll: "Смотреть все ↗", seeAllShort: "Все ↗", more: "Подробнее ↗",
       introVideo: "Интро-видео · 2:14", ctaTitle: "Есть идея? Начните сегодня.",
       sector: "Сфера", investment: "Инвестиции",
+      totalInvested: "Всего инвестиций", companies: "Компании портфеля", close: "Закрыть",
+      visitSite: "Перейти на сайт", aboutStartup: "О стартапе",
       aboutTitle: "О нас", aboutIntro: "Мы верим в ваш стартап первыми.",
       processTitle: "Процесс", processHeading: "От заявки до инвестиции — 4 шага", step: "Шаг",
       teamTitle: "Команда", teamHeading: "Люди, которые вас услышат",
@@ -190,6 +195,8 @@ export const UI: Record<Locale, Dict> = {
       ecosystem: "Ecosystem", seeAll: "See all ↗", seeAllShort: "All ↗", more: "Read more ↗",
       introVideo: "Intro video · 2:14", ctaTitle: "Got an idea? Start today.",
       sector: "Sector", investment: "Investment",
+      totalInvested: "Invested to date", companies: "Portfolio companies", close: "Close",
+      visitSite: "Visit website", aboutStartup: "About the startup",
       aboutTitle: "About us", aboutIntro: "We are the first to believe in your startup.",
       processTitle: "Process", processHeading: "From application to investment in 4 steps", step: "Step",
       teamTitle: "Team", teamHeading: "The people who will listen",

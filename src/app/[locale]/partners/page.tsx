@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Card, Pill } from "@/components/ui";
+import SafeImage from "@/components/SafeImage";
+import { Card, Monogram, Pill } from "@/components/ui";
 import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -35,7 +36,13 @@ export default async function PartnersPage({ params }: { params: Promise<{ local
           {items.map((c) => (
             <article key={c.id}>
               <Card>
-                <p className="eyebrow">{s(c, "kind")}</p>
+                <SafeImage
+                  src={s(c, "logo_url")}
+                  alt={s(c, "name")}
+                  style={{ width: 56, height: 56, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
+                  fallback={<Monogram text={s(c, "name")} />}
+                />
+                <p className="eyebrow mt-4">{s(c, "kind")}</p>
                 <h2 className="font-display font-semibold text-lg mt-1">{s(c, "name")}</h2>
                 <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(c, "note")}</p>
               </Card>
