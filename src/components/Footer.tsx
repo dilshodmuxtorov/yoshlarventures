@@ -5,7 +5,7 @@ import { InstagramIcon, LinkedInIcon, TelegramIcon, XIcon, YouTubeIcon } from "@
 import type { CompanyInfo } from "@/lib/api";
 import { UI, type Locale } from "@/lib/i18n";
 
-export default function Footer({ locale, company }: { locale: Locale; company: CompanyInfo }) {
+export default function Footer({ locale, company, hidden = [] }: { locale: Locale; company: CompanyInfo; hidden?: string[] }) {
   const t = UI[locale];
   const p = (path: string) => `/${locale}${path}`;
   const year = 2026;
@@ -53,11 +53,17 @@ export default function Footer({ locale, company }: { locale: Locale; company: C
           <p className="eyebrow mb-3">{t.footer.nav}</p>
           <ul className="space-y-2 text-sm" style={{ color: "var(--n500)" }}>
             <li><Link href={p("")}>{t.nav.home}</Link></li>
-            <li><Link href={p("/about")}>{t.nav.about}</Link></li>
-            <li><Link href={p("/news")}>{t.nav.news}</Link></li>
-            <li><Link href={p("/portfolio")}>{t.nav.portfolio}</Link></li>
-            <li><Link href={p("/partners")}>{t.nav.partners}</Link></li>
-            <li><Link href={p("/contact")}>{t.nav.contact}</Link></li>
+            {[
+              { page: "about", label: t.nav.about },
+              { page: "news", label: t.nav.news },
+              { page: "portfolio", label: t.nav.portfolio },
+              { page: "partners", label: t.nav.partners },
+              { page: "contact", label: t.nav.contact },
+            ]
+              .filter((l) => !hidden.includes(l.page))
+              .map((l) => (
+                <li key={l.page}><Link href={p(`/${l.page}`)}>{l.label}</Link></li>
+              ))}
           </ul>
         </div>
 

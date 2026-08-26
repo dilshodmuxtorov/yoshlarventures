@@ -7,7 +7,7 @@ import CustomCursor from "@/components/CustomCursor";
 import Header from "@/components/Header";
 import ThemeSync from "@/components/ThemeSync";
 import Footer from "@/components/Footer";
-import { getCompanyInfo } from "@/lib/api";
+import { getCompanyInfo, getSections, isVisible } from "@/lib/api";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n";
 import { jsonLdScript, organizationJsonLd, pageMetadata, websiteJsonLd } from "@/lib/seo";
 import "../globals.css";
@@ -39,7 +39,12 @@ export default async function LocaleLayout({
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
 
-  const company = await getCompanyInfo(loc);
+  const [company, sections] = await Promise.all([getCompanyInfo(loc), getSections(loc)]);
+  // Pages the dashboard has switched off: dropped from the menu and the footer,
+  // and 404'd by the page itself so a stale link cannot reach them.
+  const hidden = ["about", "portfolio", "news", "partners", "contact"].filter(
+    (page) => !isVisible(sections, `page.${page}`),
+  );
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -52,9 +57,9 @@ export default async function LocaleLayout({
         <ThemeSync />
         <AnimatedBackground />
         <CustomCursor />
-        <Header locale={loc} />
+        <Header locale={loc} hidden={hidden} />
         <main className="pt-20">{children}</main>
-        <Footer locale={loc} company={company} />
+        <Footer locale={loc} company={company} hidden={hidden} />
       </body>
     </html>
   );

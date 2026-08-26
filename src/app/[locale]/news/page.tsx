@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import SafeImage from "@/components/SafeImage";
 import { Card, Pill } from "@/components/ui";
-import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
+import { getCollection, getPageTexts, getSections, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
@@ -21,6 +21,8 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
+  // Hidden from the dashboard: the page stops existing, not just its link.
+  if (!isVisible(await getSections(loc), "page.news")) notFound();
   const t = UI[loc];
   const [{ texts }, upcoming, feed, archive] = await Promise.all([
     getPageTexts("news", loc),

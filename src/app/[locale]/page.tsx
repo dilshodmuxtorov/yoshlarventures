@@ -7,7 +7,7 @@ import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import SafeImage from "@/components/SafeImage";
 import { Monogram } from "@/components/ui";
-import { getHomeData, type ContentRecord } from "@/lib/api";
+import { getHomeData, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { formatK, totalInvestedK } from "@/lib/portfolio";
 
@@ -42,6 +42,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // figure on its own. Falls back to the hand-written page text if nothing
   // in the collection carries a parseable amount.
   const investedTotal = formatK(totalInvestedK(d.portfel));
+  // Section switches come from the dashboard; anything not explicitly
+  // hidden there renders exactly as before.
+  const vis = (key: string) => isVisible(d.sections, key);
 
   return (
     <>
@@ -64,7 +67,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* ── Investment stages ── */}
-      {d.stages.length > 0 && (
+      {vis("home.stages") && d.stages.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv">
             <h2 className="section-title" style={{ maxWidth: "13ch" }}>{x.secStage || g.secStage}</h2>
@@ -85,6 +88,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Objections band ── */}
+      {vis("home.objections") && (
       <section style={{ background: "var(--warm)", borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)" }}>
         <div className="container-yv grid items-center grid-cols-1 md:grid-cols-2" style={{ padding: "clamp(64px,8vw,112px) 24px", gap: "clamp(32px,5vw,72px)" }}>
           <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
@@ -101,16 +105,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </div>
       </section>
+      )}
 
       {/* ── Portfolio rail ── */}
-      {d.portfel.length > 0 && (
+      {vis("home.portfolio") && d.portfel.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv flex flex-wrap items-end justify-between gap-5 mb-2">
             <div>
               <span className="eyebrow-pill">{t.nav.portfolio}</span>
               <h2 className="section-title" style={{ marginTop: 18 }}>{x.secPort || g.secPortfolio}</h2>
             </div>
-            <Link href={p("/portfolio")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAll}</Link>
+            {vis("page.portfolio") && <Link href={p("/portfolio")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAll}</Link>}
           </div>
           <Marquee durationSec={120} gap={18}>
             {d.portfel.map((c, i) => (
@@ -139,7 +144,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Belief band (full-bleed dark) ── */}
-      {x.band && (
+      {vis("home.belief") && x.band && (
         <section style={{ position: "relative", overflow: "hidden", background: "var(--band)", padding: "clamp(96px,13vw,168px) 24px" }}>
           <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(180deg,rgba(255,255,255,.045) 1px,transparent 1px)", backgroundSize: "104px 104px" }} />
           <div aria-hidden style={{ position: "absolute", left: "50%", top: "-40%", width: "min(820px, 160vw)", height: "min(820px, 160vw)", transform: "translateX(-50%)", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,122,26,.32), transparent 62%)" }} />
@@ -154,7 +159,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Ecosystem projects ── */}
-      {d.projects.length > 0 && (
+      {vis("home.projects") && d.projects.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv flex flex-wrap items-end justify-between gap-5">
             <div>
@@ -193,11 +198,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── News ── */}
-      {d.news.length > 0 && (
+      {vis("home.news") && d.news.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv flex flex-wrap items-end justify-between gap-5">
             <h2 className="section-title" style={{ maxWidth: "14ch" }}>{x.secNews || g.secNews}</h2>
-            <Link href={p("/news")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAllShort}</Link>
+            {vis("page.news") && <Link href={p("/news")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAllShort}</Link>}
           </div>
           <div className="container-yv grid gap-[18px] md:grid-cols-3" style={{ marginTop: 40 }}>
             {d.news.slice(0, 3).map((n) => (
@@ -222,7 +227,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Story / video ── */}
-      {(x.story || x.storyText) && (
+      {vis("home.story") && (x.story || x.storyText) && (
         <section className="section">
           <div className="container-yv grid items-center grid-cols-1 md:grid-cols-2" style={{ gap: "clamp(32px,5vw,64px)" }}>
             <div>
@@ -244,7 +249,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Team ── */}
-      {d.team.length > 0 && (
+      {vis("home.team") && d.team.length > 0 && (
         <Reveal as="section" className="section">
           <div className="container-yv">
             <h2 className="section-title">{x.secTeam || g.secTeam}</h2>
@@ -275,7 +280,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Partners marquee ── */}
-      {d.logos.length > 0 && (
+      {vis("home.partners") && d.logos.length > 0 && (
         <section style={{ padding: "clamp(64px,8vw,112px) 0", borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)" }}>
           <div className="container-yv">
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>

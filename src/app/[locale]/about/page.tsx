@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 
 import SafeImage from "@/components/SafeImage";
 import { Monogram } from "@/components/ui";
-import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
+import { getCollection, getPageTexts, getSections, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
@@ -23,6 +23,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
+  // Hidden from the dashboard: the page stops existing, not just its link.
+  if (!isVisible(await getSections(loc), "page.about")) notFound();
   const t = UI[loc];
   const g = t.page;
   // The fund's headline numbers live on the home page in the CMS; the about

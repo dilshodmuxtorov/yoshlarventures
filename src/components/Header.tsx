@@ -26,7 +26,7 @@ function useTheme(): "light" | "dark" {
   );
 }
 
-export default function Header({ locale }: { locale: Locale }) {
+export default function Header({ locale, hidden = [] }: { locale: Locale; hidden?: string[] }) {
   const pathname = usePathname();
   const t = UI[locale];
   // The menu is remembered against the path it was opened on, so navigating
@@ -58,15 +58,17 @@ export default function Header({ locale }: { locale: Locale }) {
   // strip current locale prefix to build language-switch links preserving path
   const rest = pathname.replace(new RegExp(`^/(${LOCALES.join("|")})`), "") || "";
 
-  const links: { href: string; label: string; external?: boolean }[] = [
+  // `page` matches the dashboard's section key, so hiding a page there takes it
+  // out of the menu as well as off the site.
+  const links: { href: string; label: string; external?: boolean; page?: string }[] = [
     { href: p(""), label: t.nav.home },
-    { href: p("/about"), label: t.nav.about },
-    { href: p("/news"), label: t.nav.news },
-    { href: p("/portfolio"), label: t.nav.portfolio },
-    { href: p("/partners"), label: t.nav.partners },
+    { href: p("/about"), label: t.nav.about, page: "about" },
+    { href: p("/news"), label: t.nav.news, page: "news" },
+    { href: p("/portfolio"), label: t.nav.portfolio, page: "portfolio" },
+    { href: p("/partners"), label: t.nav.partners, page: "partners" },
     { href: "https://youtube.com/@yoshlarventures", label: t.nav.video, external: true },
-    { href: p("/contact"), label: t.nav.contact },
-  ];
+    { href: p("/contact"), label: t.nav.contact, page: "contact" },
+  ].filter((l) => !l.page || !hidden.includes(l.page));
 
   const isActive = (href: string) => pathname === href || (href !== p("") && pathname.startsWith(href));
 

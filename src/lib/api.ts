@@ -106,9 +106,26 @@ export function getCompanyInfo(locale: Locale): Promise<CompanyInfo> {
   return pub(`/company-info/`, locale, {});
 }
 
+/** Which blocks of the site the dashboard currently has switched on. */
+export type Sections = Record<string, boolean>;
+
+export async function getSections(locale: Locale): Promise<Sections> {
+  const data = await pub<{ sections: Sections }>(`/sections/`, locale, { sections: {} });
+  return data.sections ?? {};
+}
+
+/**
+ * A section is shown unless the dashboard has explicitly hidden it.
+ *
+ * Defaulting to visible is what keeps this safe: an unreachable API, a key the
+ * backend does not know yet, or a brand-new section all render as they always
+ * did rather than silently blanking part of the page.
+ */
+export const isVisible = (sections: Sections, key: string): boolean => sections[key] !== false;
+
 /** Convenience: fetch every collection + page texts a page needs in parallel. */
 export async function getHomeData(locale: Locale) {
-  const [texts, portfel, projects, news, partners, upcoming, archive, logos, team, stages, steps, company] =
+  const [texts, portfel, projects, news, partners, upcoming, archive, logos, team, stages, steps, company, sections] =
     await Promise.all([
       getPageTexts("home", locale),
       getCollection("portfel", locale),
@@ -122,6 +139,7 @@ export async function getHomeData(locale: Locale) {
       getCollection("bosqichlar", locale),
       getCollection("jarayon", locale),
       getCompanyInfo(locale),
+      getSections(locale),
     ]);
   return {
     texts: texts.texts,
@@ -136,5 +154,6 @@ export async function getHomeData(locale: Locale) {
     stages: stages.items,
     steps: steps.items,
     company,
+    sections,
   };
 }

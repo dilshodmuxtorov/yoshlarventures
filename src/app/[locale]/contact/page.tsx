@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import ContactForm from "@/components/ContactForm";
 import { Pill } from "@/components/ui";
-import { getCompanyInfo, getPageTexts } from "@/lib/api";
+import { getCompanyInfo, getPageTexts, getSections, isVisible } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
@@ -19,6 +19,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
+  // Hidden from the dashboard: the page stops existing, not just its link.
+  if (!isVisible(await getSections(loc), "page.contact")) notFound();
   const [{ texts }, company] = await Promise.all([getPageTexts("contact", loc), getCompanyInfo(loc)]);
   const mapLink = UI[loc].page.openMap;
 

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import PortfolioExplorer from "@/components/PortfolioExplorer";
 import { Pill } from "@/components/ui";
-import { getCollection, getPageTexts } from "@/lib/api";
+import { getCollection, getPageTexts, getSections, isVisible } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
 import { formatK, totalInvestedK } from "@/lib/portfolio";
 import { pageMetadata } from "@/lib/seo";
@@ -21,6 +21,8 @@ export default async function PortfolioPage({ params }: { params: Promise<{ loca
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const loc = locale as Locale;
+  // Hidden from the dashboard: the page stops existing, not just its link.
+  if (!isVisible(await getSections(loc), "page.portfolio")) notFound();
   const t = UI[loc];
   const [{ texts }, { items }] = await Promise.all([getPageTexts("portfolio", loc), getCollection("portfel", loc)]);
 
