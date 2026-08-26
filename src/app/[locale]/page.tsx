@@ -114,7 +114,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     amount line up across cards regardless of description length. */}
                 <div style={{ padding: 28, display: "flex", flexDirection: "column", width: "100%" }}>
                   <span className="font-display" aria-hidden style={{ position: "absolute", right: -6, top: -18, fontSize: 96, fontWeight: 700, letterSpacing: "-0.06em", color: "var(--shell)" }}>{String(i + 1).padStart(2, "0")}</span>
-                  <span className="font-display grid place-items-center shrink-0" style={{ position: "relative", width: 52, height: 52, borderRadius: 16, background: "var(--warm)", fontWeight: 700, color: "var(--warm-ink)" }}>{mono(s(c, "name"))}</span>
+                  <SafeImage
+                    src={s(c, "image_url")}
+                    alt={s(c, "name")}
+                    style={{ position: "relative", width: 52, height: 52, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
+                    fallback={<span className="font-display grid place-items-center shrink-0" style={{ position: "relative", width: 52, height: 52, borderRadius: 16, background: "var(--warm)", fontWeight: 700, color: "var(--warm-ink)" }}>{mono(s(c, "name"))}</span>}
+                  />
                   <h3 className="font-display" style={{ position: "relative", fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", margin: "22px 0 0" }}>{s(c, "name")}</h3>
                   <p className="line-clamp-2" style={{ margin: "8px 0 26px", fontSize: 14, lineHeight: 1.6, color: "var(--n500)", maxWidth: "26ch", minHeight: 45 }}>{s(c, "short_description")}</p>
                   <div style={{ marginTop: "auto" }}>

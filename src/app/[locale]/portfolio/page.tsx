@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import SafeImage from "@/components/SafeImage";
 import { Card, Monogram, Pill } from "@/components/ui";
 import { getCollection, getPageTexts, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
@@ -35,7 +36,12 @@ export default async function PortfolioPage({ params }: { params: Promise<{ loca
           {items.map((c) => (
             <article key={c.id}>
               <Card>
-                <Monogram text={s(c, "name")} />
+                <SafeImage
+                  src={s(c, "image_url")}
+                  alt={s(c, "name")}
+                  style={{ width: 56, height: 56, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
+                  fallback={<Monogram text={s(c, "name")} />}
+                />
                 <h2 className="font-display font-semibold text-lg mt-4">{s(c, "name")}</h2>
                 <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(c, "short_description")}</p>
                 <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-2 text-sm" style={{ borderColor: "var(--hair)" }}>
