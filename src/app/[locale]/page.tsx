@@ -271,7 +271,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>
           </div>
           <div style={{ marginTop: 36 }}>
-            <Marquee durationSec={34} gap={14}>
+            <Marquee durationSec={68} gap={14}>
               {d.logos.map((l) => (
                 <span key={l.id} style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px 10px 10px", borderRadius: 999, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--hi)", fontSize: 15, fontWeight: 600, color: "var(--n700)", whiteSpace: "nowrap" }}>
                   <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0 }} fallback={null} />
