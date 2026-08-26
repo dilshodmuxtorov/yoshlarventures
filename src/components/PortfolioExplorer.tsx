@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import SafeImage from "@/components/SafeImage";
 import { Monogram } from "@/components/ui";
@@ -15,6 +15,8 @@ type Labels = {
   aboutStartup: string;
 };
 
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * The portfolio grid plus the detail overlay.
  *
@@ -26,7 +28,6 @@ type Labels = {
 export default function PortfolioExplorer({ items, labels }: { items: ContentRecord[]; labels: Labels }) {
   const [openId, setOpenId] = useState<number | null>(null);
   const open = items.find((i) => i.id === openId) ?? null;
-  const closeRef = useRef<HTMLButtonElement>(null);
   // Focus goes back to the card that opened the overlay, so keyboard users are
   // not dropped at the top of the document on close.
   const originRef = useRef<HTMLButtonElement | null>(null);
@@ -35,23 +36,6 @@ export default function PortfolioExplorer({ items, labels }: { items: ContentRec
     setOpenId(null);
     originRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKey);
-    // Lock the page behind the overlay, restoring whatever the document already
-    // had rather than assuming it was scrollable.
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-    };
-  }, [open, close]);
 
   return (
     <>
@@ -78,10 +62,14 @@ export default function PortfolioExplorer({ items, labels }: { items: ContentRec
                   style={{ width: 56, height: 56, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
                   fallback={<Monogram text={name} />}
                 />
-                <h2 className="font-display font-semibold text-lg mt-4">{name}</h2>
-                <p className="text-sm mt-2 line-clamp-3" style={{ color: "var(--n500)" }}>{field(c, "short_description")}</p>
+                <h2 className="font-display font-semibold text-lg mt-4" style={{ overflowWrap: "anywhere" }}>
+                  {name}
+                </h2>
+                <p className="text-sm mt-2 line-clamp-3" style={{ color: "var(--n500)" }}>
+                  {field(c, "short_description")}
+                </p>
                 <div
-                  className="mt-4 pt-4 border-t grid grid-cols-2 gap-2 text-sm"
+                  className="pt-4 border-t grid grid-cols-2 gap-2 text-sm"
                   style={{ borderColor: "var(--hair)", marginTop: "auto" }}
                 >
                   <div>
@@ -99,9 +87,7 @@ export default function PortfolioExplorer({ items, labels }: { items: ContentRec
         })}
       </div>
 
-      {open && (
-        <PortfolioDetail record={open} labels={labels} onClose={close} closeRef={closeRef} />
-      )}
+      {open && <PortfolioDetail record={open} labels={labels} onClose={close} />}
     </>
   );
 }
@@ -110,57 +96,128 @@ function PortfolioDetail({
   record,
   labels,
   onClose,
-  closeRef,
 }: {
   record: ContentRecord;
   labels: Labels;
   onClose: () => void;
-  closeRef: RefObject<HTMLButtonElement | null>;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      // Keep Tab inside the dialog; without this the next stop is the page
+      // behind it, which is unreachable by mouse but still tabbable.
+      const panel = panelRef.current;
+      if (!panel) return;
+      const stops = [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)];
+      if (stops.length === 0) return;
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      const active = document.activeElement;
+      const inside = active instanceof Node && panel.contains(active);
+      if (e.shiftKey && (!inside || active === first)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (!inside || active === last)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+
+    // The viewport scrolls the <html> element on this site, not <body>:
+    // globals.css puts `overflow-x: clip` on <html>, and a root element whose
+    // overflow is not visible in both axes stops the UA propagating <body>'s
+    // overflow to the viewport. Locking <body> therefore did nothing at all,
+    // which is why the page kept scrolling behind the overlay.
+    //
+    // Only the block axis is touched, so `overflow-x: clip` survives — swapping
+    // it for `hidden` would turn <html> into a scrollport and break every
+    // `position: sticky` on the site (see the note in globals.css).
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflowY;
+    const previousPadding = root.style.paddingRight;
+    // Measured before the lock: where scrollbars take real width, removing one
+    // would otherwise shift the whole page sideways as the overlay opens.
+    const gutter = window.innerWidth - root.clientWidth;
+    root.style.overflowY = "hidden";
+    if (gutter > 0) root.style.paddingRight = `${gutter}px`;
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      root.style.overflowY = previousOverflow;
+      root.style.paddingRight = previousPadding;
+    };
+  }, [onClose]);
+
   const name = field(record, "name");
   const website = field(record, "website_url");
-  const detail = field(record, "detail_text");
   const short = field(record, "short_description");
+  const rawDetail = field(record, "detail_text");
+  // Several records repeat the short description verbatim in the long field.
+  // Printing both just looks like a rendering bug, so the duplicate is dropped.
+  const detail = rawDetail.trim() === short.trim() ? "" : rawDetail;
   const sector = field(record, "sector");
   const amount = field(record, "investment_thousand_usd");
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={name}
       onMouseDown={(e) => {
-        // mousedown, not click: a click that STARTS inside the panel and ends on
-        // the backdrop (text selection dragged outward) should not close it.
-        if (e.target === e.currentTarget) onClose();
+        // mousedown, not click: a drag that starts inside the panel and ends on
+        // the backdrop (selecting text) must not count as clicking away.
+        // Primary button only, so a right-click, or grabbing this element's own
+        // scrollbar, leaves the dialog open.
+        if (e.button === 0 && e.target === e.currentTarget) onClose();
       }}
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 80,
-        display: "grid",
-        placeItems: "center",
+        // flex + `margin: auto` on the panel rather than `place-items: center`:
+        // a centred item taller than its scrollport overflows equally at both
+        // ends and the top can never be scrolled to. Auto margins collapse to
+        // zero once the free space is gone, so a long write-up stays reachable.
+        display: "flex",
+        overflowY: "auto",
         padding: "clamp(12px,4vw,40px)",
         background: "rgba(20,20,20,.52)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
         animation: "yv-fade .18s ease-out",
-        overflowY: "auto",
       }}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={name}
         style={{
           position: "relative",
+          margin: "auto",
           width: "min(680px, 100%)",
           borderRadius: 32,
           background: "var(--card)",
           boxShadow: "var(--elev)",
-          overflow: "hidden",
+          // `clip`, not `hidden`, for the same reason globals.css gives for
+          // <html>: `hidden` makes this a scroll container, and the decorative
+          // glow below sticks out 60px to the right, so focusing the close
+          // button on open scrolled the whole panel sideways by 60px. `clip`
+          // trims the glow without ever creating a scrollport.
+          overflow: "clip",
           animation: "yv-pop .22s cubic-bezier(.2,.8,.3,1)",
         }}
       >
-        {/* Warm header band, so the logo reads as a bubble lifted off the card. */}
-        <div style={{ position: "relative", background: "var(--warm)", padding: "34px 32px 30px" }}>
+        {/* Warm header band, so the logo reads as a bubble lifted off the card.
+            The right padding clears the close button at every width. */}
+        <div style={{ position: "relative", background: "var(--warm)", padding: "34px 70px 30px 32px" }}>
           <div
             aria-hidden
             style={{
@@ -178,7 +235,7 @@ function PortfolioDetail({
             type="button"
             onClick={onClose}
             aria-label={labels.close}
-            className="cursor-pointer"
+            className="cursor-pointer grid place-items-center"
             style={{
               position: "absolute",
               right: 18,
@@ -189,7 +246,7 @@ function PortfolioDetail({
               border: "1px solid var(--hair)",
               background: "var(--card)",
               color: "var(--ink)",
-              fontSize: 18,
+              fontSize: 20,
               lineHeight: 1,
               zIndex: 1,
             }}
@@ -215,7 +272,13 @@ function PortfolioDetail({
             <div style={{ minWidth: 0 }}>
               <h2
                 className="font-display"
-                style={{ fontSize: "clamp(24px,4vw,34px)", fontWeight: 700, letterSpacing: "-0.03em", margin: 0 }}
+                style={{
+                  fontSize: "clamp(22px,4vw,34px)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  margin: 0,
+                  overflowWrap: "anywhere",
+                }}
               >
                 {name}
               </h2>
@@ -272,10 +335,14 @@ function PortfolioDetail({
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"
-              style={{ marginTop: 26 }}
+              style={{ marginTop: 26, maxWidth: "100%" }}
             >
-              {labels.visitSite} · {linkKind(website)}
-              <span className="badge">↗</span>
+              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {labels.visitSite} · {linkKind(website)}
+              </span>
+              {/* .badge is sized in px but is a flex item here, so it would give
+                  up width to a long host name without this. */}
+              <span className="badge" style={{ flexShrink: 0 }}>↗</span>
             </a>
           )}
         </div>
