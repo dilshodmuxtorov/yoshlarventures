@@ -48,7 +48,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-      <Hero texts={x} applyHref={p("/apply")} portfolioHref={p("/portfolio")} applyLabel={t.cta.apply} portfolioLabel={t.nav.portfolio} />
+      <Hero texts={x} applyHref={p("/apply")} portfolioHref={p("/portfolio")} applyLabel={t.cta.apply} portfolioLabel={t.nav.portfolio} invested={investedTotal ? `${investedTotal}+` : ""} />
 
       {/* ── Stats bar ── */}
       <section style={{ borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)", background: "var(--card)" }}>

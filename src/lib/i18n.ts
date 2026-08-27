@@ -64,7 +64,7 @@ type Dict = {
     back: string; next: string; submit: string; sending: string;
     yes: string; no: string; choose: string;
     allRequired: string; required: string; requiredChoice: string; requiredAny: string; fixErrors: string;
-    sentTitle: string; sentBody: string;
+    sentTitle: string; sentBody: string; sendError: string; retry: string;
   };
 };
 
@@ -123,6 +123,7 @@ export const UI: Record<Locale, Dict> = {
       fixErrors: "Davom etish uchun barcha maydonlarni toʻldiring.",
       sentTitle: "Arizangiz qabul qilindi",
       sentBody: "Rahmat! Arizangizni koʻrib chiqamiz va javob xatini email orqali yuboramiz.",
+      sendError: "Arizani yuborib boʻlmadi. Internetni tekshirib, qayta urinib koʻring.", retry: "Qayta yuborish",
     },
   },
   ru: {
@@ -179,6 +180,7 @@ export const UI: Record<Locale, Dict> = {
       fixErrors: "Чтобы продолжить, заполните все поля.",
       sentTitle: "Заявка принята",
       sentBody: "Спасибо! Мы рассмотрим вашу заявку и отправим ответное письмо на email.",
+      sendError: "Не удалось отправить заявку. Проверьте соединение и попробуйте ещё раз.", retry: "Отправить снова",
     },
   },
   en: {
@@ -235,6 +237,7 @@ export const UI: Record<Locale, Dict> = {
       fixErrors: "Fill in every field to continue.",
       sentTitle: "Your application has been received",
       sentBody: "Thank you! We will review your application and send our reply by email.",
+      sendError: "Could not send your application. Check your connection and try again.", retry: "Try again",
     },
   },
 };

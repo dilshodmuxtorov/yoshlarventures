@@ -101,6 +101,7 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
   const [invalid, setInvalid] = useState<string[]>([]);
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   const g = (k: string) => (typeof f[k] === "string" ? (f[k] as string) : "");
   const arr = (k: string) => (Array.isArray(f[k]) ? (f[k] as string[]) : []);
@@ -147,13 +148,28 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
   const submit = async () => {
     if (!check()) return;
     setBusy(true);
+    setSendError(false);
+    // The backend appends to a Google Sheet synchronously, which can take a few
+    // seconds; without a ceiling a hung request leaves the button spinning
+    // forever, which reads as "stuck" and gets refreshed away mid-flight.
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), 25_000);
     try {
-      await fetch("/api/apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, locale }) });
+      const res = await fetch("/api/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...f, locale }),
+        signal: abort.signal,
+      });
+      // Only claim success when the server actually accepted it — the previous
+      // version showed "received" even on a 502 or a network error.
+      if (res.ok) setSent(true);
+      else setSendError(true);
     } catch {
-      /* best-effort */
+      setSendError(true);
     } finally {
+      clearTimeout(timer);
       setBusy(false);
-      setSent(true);
     }
   };
 
@@ -320,10 +336,14 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
         <p role="alert" className="text-sm mt-6" style={{ color: "var(--danger)" }}>{t.fixErrors}</p>
       )}
 
+      {sendError && (
+        <p role="alert" className="text-sm mt-6" style={{ color: "var(--danger)" }}>{t.sendError}</p>
+      )}
+
       <div className="flex items-center gap-3 mt-6 pt-5 border-t" style={{ borderColor: "var(--hair)" }}>
         {step > 1 && <button type="button" onClick={() => { setInvalid([]); setStep((s) => s - 1); }} className="btn-outline !min-h-11">{t.back}</button>}
         {step < 4 && <button type="button" onClick={() => { if (check()) setStep((s) => s + 1); }} className="btn-primary !min-h-11 ml-auto">{t.next}</button>}
-        {step === 4 && <button type="button" onClick={submit} disabled={busy} className="btn-primary !min-h-11 ml-auto disabled:opacity-60">{busy ? t.sending : t.submit}<span className="badge">↗</span></button>}
+        {step === 4 && <button type="button" onClick={submit} disabled={busy} className="btn-primary !min-h-11 ml-auto disabled:opacity-60">{busy ? t.sending : sendError ? t.retry : t.submit}<span className="badge">↗</span></button>}
       </div>
     </div></div>
   );

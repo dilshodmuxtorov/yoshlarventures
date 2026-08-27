@@ -52,6 +52,15 @@
   --band: #22262f;
   --band-ink: #f4f5f7;
   --hi: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* Tokens the dark block used to inherit from :root, where every value was
+     tuned for a light page. --navbg stayed 72% white, so the navbar sat there
+     as a pale bar with light-grey links on it. --btn was near-black on a
+     near-black page, and the elevation shadows were dark-on-dark, i.e. nothing. */
+  --navbg: rgba(23, 27, 36, 0.72);
+  --btn: #f4f5f7;
+  --btn-fg: #141414;
+  --elev: 0 40px 80px -40px rgba(0, 0, 0, 0.72);
+  --elev-sm: 0 24px 48px -32px rgba(0, 0, 0, 0.78);
   /* Lifted off the light value, which fails contrast on the dark surface. */
   --danger: #ff8a7a;
   --bg: var(--surface);

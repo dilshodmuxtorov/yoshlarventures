@@ -26,7 +26,10 @@ function usePrefersReducedMotion(): boolean {
   );
 }
 
-export default function Hero({ texts, applyHref, portfolioHref, applyLabel, portfolioLabel }: { texts: Texts; applyHref: string; portfolioHref: string; applyLabel: string; portfolioLabel: string }) {
+export default function Hero({ texts, applyHref, portfolioHref, applyLabel, portfolioLabel, invested }: { texts: Texts; applyHref: string; portfolioHref: string; applyLabel: string; portfolioLabel: string; invested?: string }) {
+  // The stats bar below derives this from the portfel collection; the pill has
+  // to read the same figure or the page states two different totals.
+  const investedLabel = invested || texts.stat1;
   const pairs = [
     { q: texts.q1, a: texts.a1 },
     { q: texts.q2, a: texts.a2 },
@@ -120,9 +123,9 @@ export default function Hero({ texts, applyHref, portfolioHref, applyLabel, port
           </div>
           {texts.sub && <p style={{ margin: "20px 0 0", maxWidth: 480, fontSize: 17, lineHeight: 1.6, color: "var(--n500)" }}>{texts.sub}</p>}
 
-          {(texts.stat1 || texts.stat1l) && (
+          {(investedLabel || texts.stat1l) && (
             <div className="inline-flex items-center" style={{ gap: 12, marginTop: 20, padding: "10px 18px 10px 12px", borderRadius: 999, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--elev-sm)" }}>
-              <span className="font-display font-bold" style={{ fontSize: 20, letterSpacing: "-0.03em", color: "var(--orange)" }}>{texts.stat1}</span>
+              <span className="font-display font-bold" style={{ fontSize: 20, letterSpacing: "-0.03em", color: "var(--orange)" }}>{investedLabel}</span>
               <span style={{ fontSize: 14, color: "var(--n500)" }}>{texts.stat1l}</span>
             </div>
           )}
