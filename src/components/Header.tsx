@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 import { LOCALES, UI, type Locale } from "@/lib/i18n";
 
@@ -44,6 +44,19 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
     [pathname],
   );
   const theme = useTheme();
+
+  // Lock the page behind the mobile menu. The viewport scrolls <html> on this
+  // site (globals.css sets overflow-x: clip there), so <body> locks do nothing —
+  // only the block axis is touched so the clip survives.
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const prev = root.style.overflowY;
+    root.style.overflowY = "hidden";
+    return () => {
+      root.style.overflowY = prev;
+    };
+  }, [open]);
 
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
@@ -142,13 +155,40 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
       </div>
 
       {open && (
-        <div className="lg:hidden fixed inset-0 top-0 z-40 pt-24 px-6" style={{ background: "var(--surface)" }}>
+        <div className="lg:hidden fixed inset-0 top-0 z-40 overflow-y-auto pt-24 px-6 pb-10" style={{ background: "var(--surface)" }}>
           <div className="flex flex-col gap-2">
-            {links.map((l) => (
-              <Link key={l.href} href={l.href} className="font-display text-2xl font-semibold py-2" onClick={() => setOpen(false)}>
-                {l.label}
-              </Link>
-            ))}
+            {links.map((l) =>
+              l.external ? (
+                <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="font-display text-2xl font-semibold py-2" onClick={() => setOpen(false)}>
+                  {l.label}
+                </a>
+              ) : (
+                <Link key={l.href} href={l.href} className="font-display text-2xl font-semibold py-2" onClick={() => setOpen(false)}>
+                  {l.label}
+                </Link>
+              ),
+            )}
+
+            {/* Language — otherwise unreachable on a phone, where the header
+                switcher is hidden. */}
+            <div className="flex items-center gap-2 mt-4">
+              {LOCALES.map((l) => (
+                <Link
+                  key={l}
+                  href={`/${l}${rest}`}
+                  onClick={() => setOpen(false)}
+                  className="rounded-full uppercase"
+                  style={
+                    l === locale
+                      ? { padding: "10px 16px", fontSize: 14, fontWeight: 600, background: "var(--warm)", color: "var(--warm-ink)" }
+                      : { padding: "10px 16px", fontSize: 14, fontWeight: 600, color: "var(--n500)", border: "1px solid var(--hair)" }
+                  }
+                >
+                  {l}
+                </Link>
+              ))}
+            </div>
+
             <Link href={p("/apply")} className="btn-primary mt-4 justify-center" onClick={() => setOpen(false)}>
               {t.cta.apply}
               <span className="badge">↗</span>
