@@ -155,23 +155,47 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
       </div>
 
       {open && (
-        <div className="lg:hidden fixed inset-0 top-0 z-40 overflow-y-auto pt-24 px-6 pb-10" style={{ background: "var(--surface)" }}>
-          <div className="flex flex-col gap-2">
-            {links.map((l) =>
-              l.external ? (
-                <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="font-display text-2xl font-semibold py-2" onClick={() => setOpen(false)}>
-                  {l.label}
+        // Full-screen sheet above the floating bar (z-50): its own top row carries
+        // the logo and a clear close, the links are a divided list, and language +
+        // the apply CTA are pinned to the bottom — a structured menu, not a stack.
+        <div className="lg:hidden fixed inset-0 z-[60] flex flex-col overflow-y-auto" style={{ background: "var(--surface)" }}>
+          <div className="flex items-center justify-between px-5" style={{ height: 74, borderBottom: "1px solid var(--hair)" }}>
+            <Link href={p("")} onClick={() => setOpen(false)} className="flex items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/yv/logo.png" alt="Yoshlar Ventures" width={34} height={34} className="rounded-lg" style={{ width: 34, height: 34 }} />
+              <span className="font-display leading-none text-[12px] font-bold tracking-tight">YOSHLAR<br />VENTURES</span>
+            </Link>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label={t.misc.close}
+              className="grid place-items-center rounded-full"
+              style={{ width: 42, height: 42, background: "var(--shell)", border: "1px solid var(--hair)", fontSize: 17, color: "var(--ink)" }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <nav className="flex flex-col px-5 pt-2">
+            {links.map((l) => {
+              const cls = "flex items-center justify-between font-display text-xl font-semibold";
+              const st = { padding: "16px 2px", borderBottom: "1px solid var(--hair)", color: "var(--ink)" };
+              const chevron = <span aria-hidden style={{ color: "var(--n300)", fontSize: 18 }}>{l.external ? "↗" : "→"}</span>;
+              return l.external ? (
+                <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={cls} style={st} onClick={() => setOpen(false)}>
+                  {l.label}{chevron}
                 </a>
               ) : (
-                <Link key={l.href} href={l.href} className="font-display text-2xl font-semibold py-2" onClick={() => setOpen(false)}>
-                  {l.label}
+                <Link key={l.href} href={l.href} className={cls} style={st} onClick={() => setOpen(false)}>
+                  {l.label}{chevron}
                 </Link>
-              ),
-            )}
+              );
+            })}
+          </nav>
 
-            {/* Language — otherwise unreachable on a phone, where the header
-                switcher is hidden. */}
-            <div className="flex items-center gap-2 mt-4">
+          {/* Pinned footer: language, then the primary action. */}
+          <div className="mt-auto px-5 pb-8 pt-6">
+            <p className="eyebrow mb-3">Til / Язык / Language</p>
+            <div className="flex items-center gap-2">
               {LOCALES.map((l) => (
                 <Link
                   key={l}
@@ -180,8 +204,8 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
                   className="rounded-full uppercase"
                   style={
                     l === locale
-                      ? { padding: "10px 16px", fontSize: 14, fontWeight: 600, background: "var(--warm)", color: "var(--warm-ink)" }
-                      : { padding: "10px 16px", fontSize: 14, fontWeight: 600, color: "var(--n500)", border: "1px solid var(--hair)" }
+                      ? { padding: "9px 18px", fontSize: 13, fontWeight: 700, background: "var(--warm)", color: "var(--warm-ink)" }
+                      : { padding: "9px 18px", fontSize: 13, fontWeight: 600, color: "var(--n500)", border: "1px solid var(--hair)" }
                   }
                 >
                   {l}
@@ -189,9 +213,14 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
               ))}
             </div>
 
-            <Link href={p("/apply")} className="btn-primary mt-4 justify-center" onClick={() => setOpen(false)}>
+            <Link
+              href={p("/apply")}
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2 rounded-full font-semibold mt-5"
+              style={{ height: 54, background: "var(--btn)", color: "var(--btn-fg)", fontSize: 16 }}
+            >
               {t.cta.apply}
-              <span className="badge">↗</span>
+              <span className="grid place-items-center rounded-full text-white" style={{ width: 30, height: 30, background: "var(--orange)", fontSize: 12 }}>↗</span>
             </Link>
           </div>
         </div>

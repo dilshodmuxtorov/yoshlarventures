@@ -228,7 +228,9 @@ h1, h2, h3, h4, .font-display {
   /* Two CTAs share the row instead of wrapping; the arrow badge would leave no
      room for the label at half width. */
   .hero-cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .hero-cta > a { width: 100%; justify-content: center; gap: 8px; padding-inline: 14px; text-align: center; }
+  /* Right-size the CTAs for a phone: the desktop 56px pills read as oversized in
+     a 2-up row on a 375px screen. */
+  .hero-cta > a { width: 100%; min-height: 48px; font-size: 15px; justify-content: center; gap: 8px; padding-inline: 14px; text-align: center; }
   .hero-cta .badge { display: none; }
   /* Three numbers side by side leave ~110px each on a phone. They become rows,
      figure left and label right. */
@@ -239,6 +241,11 @@ h1, h2, h3, h4, .font-display {
   .statbar > div:last-child { border-bottom: 0; }
   .statbar dd { margin: 0; text-align: right; }
 }
+
+/* Horizontal card carousels on mobile hide their scrollbar; the peek of the
+   next card is the swipe affordance. */
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 
 .section { padding-block: clamp(64px, 8vw, 112px); }
 .container-yv {

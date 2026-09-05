@@ -168,7 +168,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
             {x.projText && <p style={{ margin: 0, maxWidth: "38ch", fontSize: 16, lineHeight: 1.7, color: "var(--n500)" }}>{x.projText}</p>}
           </div>
-          <div className="container-yv grid gap-[18px] sm:grid-cols-2 lg:grid-cols-4" style={{ marginTop: 40 }}>
+          {/* Swipeable on a phone (peek of the next card is the cue); a grid from 640px. */}
+          <div className="container-yv flex gap-[14px] overflow-x-auto snap-x snap-mandatory hide-scrollbar sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible" style={{ marginTop: 40, scrollPaddingInline: 24 }}>
             {d.projects.map((pr) => {
               const inner = (
                 <div className="yv-card-inner flex flex-col gap-[14px] h-full" style={{ padding: 24 }}>
@@ -188,9 +189,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               );
               const link = s(pr, "link_url");
               return link ? (
-                <a key={pr.id} href={link} target="_blank" rel="noopener noreferrer" className="yv-card yv-card-hover text-left">{inner}</a>
+                <a key={pr.id} href={link} target="_blank" rel="noopener noreferrer" className="yv-card yv-card-hover text-left snap-start shrink-0 basis-[82%] sm:basis-auto">{inner}</a>
               ) : (
-                <div key={pr.id} className="yv-card">{inner}</div>
+                <div key={pr.id} className="yv-card snap-start shrink-0 basis-[82%] sm:basis-auto">{inner}</div>
               );
             })}
           </div>
@@ -204,9 +205,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 className="section-title" style={{ maxWidth: "14ch" }}>{x.secNews || g.secNews}</h2>
             {vis("page.news") && <Link href={p("/news")} className="hidden sm:inline-flex font-semibold text-[16px]" style={{ color: "var(--ink)", borderBottom: "1px solid var(--hair)", padding: "12px 0" }}>{g.seeAllShort}</Link>}
           </div>
-          <div className="container-yv grid gap-[18px] md:grid-cols-3" style={{ marginTop: 40 }}>
+          <div className="container-yv flex gap-[14px] overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-3 md:overflow-visible" style={{ marginTop: 40, scrollPaddingInline: 24 }}>
             {d.news.slice(0, 3).map((n) => (
-              <article key={n.id} className="yv-card yv-card-hover">
+              <article key={n.id} className="yv-card yv-card-hover snap-start shrink-0 basis-[85%] md:basis-auto">
                 <div className="yv-card-inner overflow-hidden flex flex-col h-full">
                   <SafeImage
                     src={s(n, "image_url")}
