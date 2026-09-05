@@ -96,7 +96,7 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
           <Link href={p("")} className="flex items-center gap-2 pl-1 pr-2 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/yv/logo.png" alt="Yoshlar Ventures" width={32} height={32} className="w-8 h-8 rounded-lg" />
-            <span className="font-display leading-none text-[12px] font-bold tracking-tight hidden sm:block">
+            <span className="font-display leading-none text-[12px] font-bold tracking-tight block">
               YOSHLAR<br />VENTURES
             </span>
           </Link>
