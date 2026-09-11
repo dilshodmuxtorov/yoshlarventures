@@ -6,8 +6,11 @@ import { useState } from "react";
  *  heavy YouTube player is not loaded on every page view) and, on click, swaps
  *  it for the embedded player in place — the video plays inside the card instead
  *  of opening YouTube in a new tab. */
-export default function VideoEmbed({ videoId, note, title, poster = "/yv/startup-card.png" }: { videoId: string; note?: string; title?: string; poster?: string }) {
+export default function VideoEmbed({ videoId, note, title, poster }: { videoId: string; note?: string; title?: string; poster?: string }) {
   const [playing, setPlaying] = useState(false);
+  // Default to the video's own YouTube thumbnail so the card shows the actual
+  // video. maxres isn't generated for every upload, so fall back to hqdefault.
+  const [posterSrc, setPosterSrc] = useState(poster || `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
   const height = "clamp(240px,32vw,360px)";
 
   if (playing) {
@@ -33,7 +36,12 @@ export default function VideoEmbed({ videoId, note, title, poster = "/yv/startup
       style={{ background: "#141414", cursor: "pointer" }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={poster} alt="" style={{ width: "100%", height, objectFit: "cover", opacity: 0.72 }} />
+      <img
+        src={posterSrc}
+        alt=""
+        onError={() => setPosterSrc(`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`)}
+        style={{ width: "100%", height, objectFit: "cover", opacity: 0.72 }}
+      />
       <span aria-hidden className="grid place-items-center text-white" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 76, height: 76, borderRadius: 999, background: "var(--orange)", fontSize: 22, boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>▶</span>
       {note && <span style={{ position: "absolute", left: 20, bottom: 18, color: "#fff", fontSize: 12, fontWeight: 600, letterSpacing: "0.02em" }}>{note}</span>}
     </button>

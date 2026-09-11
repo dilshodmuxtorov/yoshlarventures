@@ -38,10 +38,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const bandA = bci >= 0 ? bandText.slice(0, bci + 1) : bandText;
   const bandB = bci >= 0 ? bandText.slice(bci + 2) : "";
   const beliefPill = g.beliefPill;
-  // The story card plays inline. Use the company's YouTube URL when it is a
-  // watch/share link (a channel URL has no video id), else the site intro video.
-  const ytId = (url?: string) => url?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/)?.[1] ?? null;
-  const storyVideoId = ytId(d.company.youtube_url) || "LOkOGt8Zwt8";
+  // The story card plays this video inline (poster = its YouTube thumbnail).
+  const storyVideoId = "LOkOGt8Zwt8";
   // Summed from the portfel collection, so a new startup moves the headline
   // figure on its own. Falls back to the hand-written page text if nothing
   // in the collection carries a parseable amount.
