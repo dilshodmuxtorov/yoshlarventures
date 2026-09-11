@@ -71,31 +71,50 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
     };
     raf = requestAnimationFrame(tick);
 
-    const onEnter = () => { hovering = true; };
-    const onLeave = () => { hovering = false; last = 0; };
-    const onDown = (e: PointerEvent) => {
-      dragging = true;
-      startX = e.clientX;
-      startLeft = el.scrollLeft;
-      moved = 0;
-      el.style.cursor = "grabbing";
-      try { el.setPointerCapture(e.pointerId); } catch {}
+    // True while the pointer is within the element's box. Recomputed on release
+    // so a drag that ends off the track resumes immediately.
+    const isOver = (x: number, y: number) => {
+      const r = el.getBoundingClientRect();
+      return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
     };
-    const onMove = (e: PointerEvent) => {
+
+    const onEnter = () => { hovering = true; };
+    const onLeave = () => { if (!dragging) { hovering = false; last = 0; } };
+
+    // Move/up are bound to the window (not captured on the element) for the life
+    // of a drag: pointer capture would suppress the enter/leave events this relies
+    // on to know when to resume, so after a drag the track would stay paused.
+    const onWinMove = (e: PointerEvent) => {
       if (!dragging) return;
       const dx = e.clientX - startX;
       moved = Math.max(moved, Math.abs(dx));
       el.scrollLeft = startLeft - dx;
       wrap();
     };
-    const onUp = (e: PointerEvent) => {
+    const onWinUp = (e: PointerEvent) => {
       if (!dragging) return;
       dragging = false;
-      last = 0;
       el.style.cursor = "grab";
-      try { el.releasePointerCapture(e.pointerId); } catch {}
+      // Resume unless the pointer is still resting over the track.
+      hovering = isOver(e.clientX, e.clientY);
+      last = 0;
+      window.removeEventListener("pointermove", onWinMove);
+      window.removeEventListener("pointerup", onWinUp);
+      window.removeEventListener("pointercancel", onWinUp);
     };
-    // A drag must not also click a card link underneath it.
+    const onDown = (e: PointerEvent) => {
+      dragging = true;
+      hovering = true;
+      startX = e.clientX;
+      startLeft = el.scrollLeft;
+      moved = 0;
+      el.style.cursor = "grabbing";
+      window.addEventListener("pointermove", onWinMove);
+      window.addEventListener("pointerup", onWinUp);
+      window.addEventListener("pointercancel", onWinUp);
+    };
+    // A drag must not also click a card link underneath it, nor start the native
+    // image ghost-drag.
     const onClickCapture = (e: MouseEvent) => {
       if (moved > 6) {
         e.preventDefault();
@@ -103,24 +122,24 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
         moved = 0;
       }
     };
+    const onDragStart = (e: Event) => e.preventDefault();
 
     el.addEventListener("pointerenter", onEnter);
     el.addEventListener("pointerleave", onLeave);
     el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
     el.addEventListener("click", onClickCapture, true);
+    el.addEventListener("dragstart", onDragStart);
 
     return () => {
       cancelAnimationFrame(raf);
       el.removeEventListener("pointerenter", onEnter);
       el.removeEventListener("pointerleave", onLeave);
       el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
       el.removeEventListener("click", onClickCapture, true);
+      el.removeEventListener("dragstart", onDragStart);
+      window.removeEventListener("pointermove", onWinMove);
+      window.removeEventListener("pointerup", onWinUp);
+      window.removeEventListener("pointercancel", onWinUp);
     };
   }, [durationSec, perHalf]);
 
@@ -134,7 +153,7 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
   return (
     // touch-action pan-y: vertical swipes still scroll the page, horizontal drags
     // are ours to handle via the pointer events above.
-    <div ref={scrollRef} className="overflow-x-auto hide-scrollbar" style={{ cursor: "grab", touchAction: "pan-y" }}>
+    <div ref={scrollRef} className="overflow-x-auto hide-scrollbar" style={{ cursor: "grab", touchAction: "pan-y", userSelect: "none", WebkitUserSelect: "none" }}>
       <div className="flex w-max" style={{ gap }}>
         <div className="flex shrink-0" style={{ gap }}>{sets(true)}</div>
         <div className="flex shrink-0" style={{ gap }} aria-hidden="true">{sets(false)}</div>
