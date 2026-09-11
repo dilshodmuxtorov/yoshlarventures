@@ -33,9 +33,16 @@ export default function SafeImage({
   // gone by the time this component hydrates and the reader is left with the
   // browser's broken-image glyph. A finished request with no intrinsic width is
   // a load that failed, so the same state is recovered on mount.
+  //
+  // `currentSrc` guards a Safari/WebKit quirk: a `loading="lazy"` image that is
+  // still below the fold is reported as `complete` with `naturalWidth === 0`
+  // (Chromium reports it as not-complete). Without the guard every off-screen
+  // CMS image would be wrongly flagged as failed and collapse to its fallback.
+  // A genuinely failed load has selected a source (`currentSrc` set); a merely
+  // deferred one has not.
   useEffect(() => {
     const el = ref.current;
-    if (el && el.complete && el.naturalWidth === 0) setFailed(true);
+    if (el && el.complete && el.naturalWidth === 0 && el.currentSrc) setFailed(true);
   }, []);
 
   if (!src || failed) return <>{fallback}</>;

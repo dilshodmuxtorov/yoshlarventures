@@ -75,7 +75,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {d.stages.map((st, i) => {
                 const lime = i === d.stages.length - 1;
                 return (
-                  <li key={st.id} className="grid items-baseline grid-cols-1 md:grid-cols-[88px_1fr_1fr]" style={{ gap: "8px 28px", padding: "26px 20px 26px 4px", borderBottom: "1px solid var(--hair)", borderRadius: 16, background: lime ? "var(--lime)" : undefined }}>
+                  <li key={st.id} className="grid items-baseline grid-cols-1 md:grid-cols-[88px_1fr_1fr]" style={{ gap: "8px 28px", padding: lime ? "30px clamp(24px,3vw,40px)" : "26px 20px 26px 4px", borderBottom: "1px solid var(--hair)", borderRadius: 16, background: lime ? "var(--lime)" : undefined }}>
                     <span className="font-display" style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.1em", color: lime ? "#5A6A18" : "var(--n300)" }}>0{i + 1}</span>
                     <h3 className="font-display" style={{ fontSize: "clamp(26px,3.6vw,40px)", fontWeight: 600, letterSpacing: "-0.03em", margin: 0, color: lime ? "#141414" : undefined }}>{s(st, "amount")}</h3>
                     <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: lime ? "#31380F" : "var(--n500)", maxWidth: "36ch" }}>{s(st, "note")}</p>

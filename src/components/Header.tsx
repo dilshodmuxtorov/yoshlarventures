@@ -147,7 +147,11 @@ export default function Header({ locale, hidden = [] }: { locale: Locale; hidden
               {t.cta.apply}
               <span className="grid place-items-center rounded-full text-white" style={{ width: 34, height: 34, background: "var(--orange)", fontSize: 12 }}>↗</span>
             </Link>
-            <button onClick={() => setOpen((o) => !o)} aria-label={t.misc.menu} className="lg:hidden grid place-items-center rounded-full" style={{ width: 44, height: 44, background: "var(--ink)", color: "#fff" }}>
+            {/* var(--btn)/--btn-fg, not raw --ink/#fff: in dark mode --ink is
+                near-white, so an ink button with a white glyph became an
+                invisible white blob. --btn flips with the theme (black-on-white
+                in light, white-on-black glyph in dark). */}
+            <button onClick={() => setOpen((o) => !o)} aria-label={t.misc.menu} className="lg:hidden grid place-items-center rounded-full" style={{ width: 44, height: 44, background: "var(--btn)", color: "var(--btn-fg)" }}>
               {open ? "✕" : "☰"}
             </button>
           </div>
