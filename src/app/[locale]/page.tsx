@@ -6,6 +6,7 @@ import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import SafeImage from "@/components/SafeImage";
+import VideoEmbed from "@/components/VideoEmbed";
 import { Monogram } from "@/components/ui";
 import { getHomeData, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
@@ -37,7 +38,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const bandA = bci >= 0 ? bandText.slice(0, bci + 1) : bandText;
   const bandB = bci >= 0 ? bandText.slice(bci + 2) : "";
   const beliefPill = g.beliefPill;
-  const youtubeUrl = d.company.youtube_url || "https://www.youtube.com/@yoshlarventures";
+  // The story card plays inline. Use the company's YouTube URL when it is a
+  // watch/share link (a channel URL has no video id), else the site intro video.
+  const ytId = (url?: string) => url?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/)?.[1] ?? null;
+  const storyVideoId = ytId(d.company.youtube_url) || "LOkOGt8Zwt8";
   // Summed from the portfel collection, so a new startup moves the headline
   // figure on its own. Falls back to the hand-written page text if nothing
   // in the collection carries a parseable amount.
@@ -236,14 +240,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <p style={{ margin: "20px 0 0", fontSize: 17, lineHeight: 1.7, color: "var(--n500)", maxWidth: "52ch" }}>{x.storyText}</p>
             </div>
             <div className="yv-card" style={{ boxShadow: "var(--elev)" }}>
-              {/* The whole card is the link, as in the design — a play button that
-                  does nothing is the one thing a reader will certainly click. */}
-              <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="yv-card-inner relative overflow-hidden block" style={{ background: "#141414" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/yv/startup-card.png" alt="" style={{ width: "100%", height: "clamp(240px,32vw,360px)", objectFit: "cover", opacity: 0.72 }} />
-                <span aria-hidden className="grid place-items-center text-white" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 76, height: 76, borderRadius: 999, background: "var(--orange)", fontSize: 22, boxShadow: "0 18px 30px -20px rgba(255,122,26,.9)" }}>▶</span>
-                <span style={{ position: "absolute", left: 20, bottom: 18, color: "#fff", fontSize: 12, fontWeight: 600, letterSpacing: "0.02em" }}>{x.videoNote || g.introVideo}</span>
-              </a>
+              {/* Plays inline in the card on click instead of opening YouTube in a
+                  new tab. The video id comes from the company's YouTube URL when it
+                  is a watch link; otherwise the site's intro video. */}
+              <VideoEmbed videoId={storyVideoId} note={x.videoNote || g.introVideo} title={x.story} />
             </div>
           </div>
         </section>
