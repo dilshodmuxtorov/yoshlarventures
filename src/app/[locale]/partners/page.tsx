@@ -41,7 +41,7 @@ export default async function PartnersPage({ params }: { params: Promise<{ local
                 <SafeImage
                   src={s(c, "logo_url")}
                   alt={s(c, "name")}
-                  style={{ width: 56, height: 56, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
+                  style={{ height: 56, width: "auto", maxWidth: 160, objectFit: "contain" }}
                   fallback={<Monogram text={s(c, "name")} />}
                 />
                 <p className="eyebrow mt-4">{s(c, "kind")}</p>
