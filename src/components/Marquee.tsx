@@ -1,49 +1,102 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
- * Swipeable horizontal rail — the same native-scroll pattern as the projects/news
- * rails, which are rock-solid on mobile. Every auto-advancing variant (transform,
- * CSS animation, rAF-nudged scrollLeft) eventually got its layer dropped by iOS
- * Safari and the strip went blank, so this deliberately does NOT auto-scroll: it
- * is plain native scroll (finger swipe on touch, wheel/trackpad on desktop) plus
- * mouse drag-to-scroll for desktop pointers. No duplication, no transform, no rAF
- * — nothing for the browser to blank.
- *
- * `durationSec` is accepted (call sites still pass it) but unused now.
+ * Auto-scrolling, draggable rail on NATIVE horizontal scroll. Native scroll never
+ * blanks on mobile (the transform/CSS-animation variants did — iOS dropped the
+ * huge layer). The auto-advance nudges `scrollLeft` from a float accumulator
+ * (iOS rounds scrollLeft to whole px, so we track the float and write it), and
+ * wraps at exactly ONE copy's width for a seamless loop. `durationSec` is the
+ * time to scroll one copy, so speed is consistent. It pauses on hover/touch and
+ * follows the user's own swipe, then resumes; desktop also gets mouse drag.
  */
-export default function Marquee({ children, gap = 16 }: { children: ReactNode; durationSec?: number; gap?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+export default function Marquee({ children, durationSec = 40, gap = 16 }: { children: ReactNode; durationSec?: number; gap?: number }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null); // first of the two identical copies
+  const setRef = useRef<HTMLDivElement>(null); // one set, for the repeat-count measure
+  const [perHalf, setPerHalf] = useState(1);
 
   useEffect(() => {
-    const el = ref.current;
+    const compute = () => {
+      const c = scrollRef.current;
+      const s = setRef.current;
+      if (!c || !s) return;
+      const setW = s.scrollWidth;
+      if (!setW || !c.offsetWidth) return;
+      setPerHalf(Math.max(1, Math.ceil(c.offsetWidth / setW) + 1));
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    if (scrollRef.current) ro.observe(scrollRef.current);
+    if (setRef.current) ro.observe(setRef.current);
+    window.addEventListener("resize", compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", compute);
+    };
+  }, [children]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
     if (!el) return;
-    // Mouse drag-to-scroll (desktop). Touch is left to native scrolling.
-    let down = false;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let raf = 0;
+    let last = 0;
+    let pos = el.scrollLeft;
+    let hovering = false; // mouse over
+    let touching = false; // finger on the strip (native scroll owns it)
+    let dragging = false; // desktop mouse drag-to-scroll
     let startX = 0;
     let startLeft = 0;
     let moved = 0;
 
+    const period = () => (copyRef.current?.offsetWidth ?? 0) + gap; // ONE copy + boundary gap
+    const pxPerSec = () => period() / Math.max(1, durationSec);
+
+    const tick = (t: number) => {
+      raf = requestAnimationFrame(tick);
+      if (!last) last = t;
+      const dt = (t - last) / 1000;
+      last = t;
+      if (reduce) return;
+      if (hovering || touching || dragging) {
+        pos = el.scrollLeft; // follow the user, resume from where they left it
+        return;
+      }
+      pos += pxPerSec() * dt;
+      const per = period();
+      if (per > 0 && pos >= per) pos -= per; // seamless wrap (content is duplicated)
+      el.scrollLeft = pos;
+    };
+    raf = requestAnimationFrame(tick);
+
+    const onEnter = () => { hovering = true; };
+    const onLeave = () => { hovering = false; last = 0; };
+    const onTouchStart = () => { touching = true; };
+    const onTouchEnd = () => { touching = false; last = 0; };
+    // Desktop mouse drag-to-scroll (touch already scrolls natively).
     const onDown = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return;
-      down = true;
+      dragging = true;
       startX = e.clientX;
       startLeft = el.scrollLeft;
       moved = 0;
       el.style.cursor = "grabbing";
     };
-    const onMove = (e: PointerEvent) => {
-      if (!down) return;
+    const onWinMove = (e: PointerEvent) => {
+      if (!dragging) return;
       const dx = e.clientX - startX;
       moved = Math.max(moved, Math.abs(dx));
       el.scrollLeft = startLeft - dx;
     };
-    const onUp = () => {
-      down = false;
+    const onWinUp = () => {
+      if (!dragging) return;
+      dragging = false;
       el.style.cursor = "grab";
+      last = 0;
     };
-    // Suppress the click a drag would otherwise fire on a card link underneath.
     const onClick = (e: MouseEvent) => {
       if (moved > 6) {
         e.preventDefault();
@@ -52,21 +105,42 @@ export default function Marquee({ children, gap = 16 }: { children: ReactNode; d
       }
     };
 
+    el.addEventListener("mouseenter", onEnter);
+    el.addEventListener("mouseleave", onLeave);
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
     el.addEventListener("pointerdown", onDown);
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointermove", onWinMove);
+    window.addEventListener("pointerup", onWinUp);
     el.addEventListener("click", onClick, true);
     return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("mouseenter", onEnter);
+      el.removeEventListener("mouseleave", onLeave);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
       el.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointermove", onWinMove);
+      window.removeEventListener("pointerup", onWinUp);
       el.removeEventListener("click", onClick, true);
     };
-  }, []);
+  }, [durationSec, gap, perHalf]);
+
+  const sets = (measureFirst: boolean) =>
+    Array.from({ length: perHalf }).map((_, i) => (
+      <div key={i} ref={measureFirst && i === 0 ? setRef : undefined} className="flex shrink-0" style={{ gap }}>
+        {children}
+      </div>
+    ));
 
   return (
-    <div ref={ref} className="flex overflow-x-auto hide-scrollbar" style={{ gap, cursor: "grab", scrollPaddingInline: 24 }}>
-      {children}
+    <div ref={scrollRef} className="overflow-x-auto hide-scrollbar" style={{ cursor: "grab" }}>
+      <div className="flex w-max" style={{ gap }}>
+        <div ref={copyRef} className="flex shrink-0" style={{ gap }}>{sets(true)}</div>
+        <div className="flex shrink-0" style={{ gap }} aria-hidden="true">{sets(false)}</div>
+      </div>
     </div>
   );
 }
