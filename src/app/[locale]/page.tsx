@@ -292,10 +292,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>
           </div>
           <div style={{ marginTop: 36 }}>
-            <Marquee durationSec={68} gap={18}>
+            <Marquee durationSec={68} gap={64}>
               {partnerLogos.map((l) => (
-                <span key={l.id} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 16, borderRadius: 20, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--hi)" }}>
-                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ width: 72, height: 72, borderRadius: 14, objectFit: "contain", flexShrink: 0 }} fallback={null} />
+                <span key={l.id} style={{ display: "inline-flex", alignItems: "center" }}>
+                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ height: 72, width: "auto", maxWidth: 220, objectFit: "contain", flexShrink: 0 }} fallback={null} />
                 </span>
               ))}
             </Marquee>
