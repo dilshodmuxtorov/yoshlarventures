@@ -47,6 +47,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // Section switches come from the dashboard; anything not explicitly
   // hidden there renders exactly as before.
   const vis = (key: string) => isVisible(d.sections, key);
+  // The homepage "Hamkorlar" ribbon shows the actual partners (dashboard
+  // "Hamkorlar" section = the `hamkorlar` collection). It used to read only the
+  // separate `lenta` logo strip, so partner logos uploaded under Hamkorlar never
+  // appeared here. Prefer partners; fall back to the legacy lenta strip when the
+  // partners collection is empty. Both carry `logo_url` + `name`.
+  const partnerLogos = d.partners.length > 0 ? d.partners : d.logos;
 
   return (
     <>
@@ -279,14 +285,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Partners marquee ── */}
-      {vis("home.partners") && d.logos.length > 0 && (
+      {vis("home.partners") && partnerLogos.length > 0 && (
         <section style={{ padding: "clamp(64px,8vw,112px) 0", borderTop: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)" }}>
           <div className="container-yv">
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>
           </div>
           <div style={{ marginTop: 36 }}>
             <Marquee durationSec={68} gap={14}>
-              {d.logos.map((l) => (
+              {partnerLogos.map((l) => (
                 <span key={l.id} style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px 10px 10px", borderRadius: 999, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--hi)", fontSize: 15, fontWeight: 600, color: "var(--n700)", whiteSpace: "nowrap" }}>
                   <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0 }} fallback={null} />
                   {s(l, "name")}
