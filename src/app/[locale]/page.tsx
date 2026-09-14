@@ -47,12 +47,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // Section switches come from the dashboard; anything not explicitly
   // hidden there renders exactly as before.
   const vis = (key: string) => isVisible(d.sections, key);
-  // The homepage "Hamkorlar" ribbon shows the actual partners (dashboard
-  // "Hamkorlar" section = the `hamkorlar` collection). It used to read only the
-  // separate `lenta` logo strip, so partner logos uploaded under Hamkorlar never
-  // appeared here. Prefer partners; fall back to the legacy lenta strip when the
-  // partners collection is empty. Both carry `logo_url` + `name`.
-  const partnerLogos = d.partners.length > 0 ? d.partners : d.logos;
+  // The homepage "Hamkorlar" ribbon is a logo-only strip built from the actual
+  // partners (dashboard "Hamkorlar" section = the `hamkorlar` collection). It used
+  // to read only the separate `lenta` strip, so partner logos uploaded under
+  // Hamkorlar never appeared. Show only entries that actually have a logo; prefer
+  // partners, fall back to the legacy lenta strip when there are none.
+  const withLogo = (arr: ContentRecord[]) => arr.filter((l) => s(l, "logo_url"));
+  const partnerLogos = withLogo(d.partners).length > 0 ? withLogo(d.partners) : withLogo(d.logos);
 
   return (
     <>
@@ -291,11 +292,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>
           </div>
           <div style={{ marginTop: 36 }}>
-            <Marquee durationSec={68} gap={14}>
+            <Marquee durationSec={68} gap={18}>
               {partnerLogos.map((l) => (
-                <span key={l.id} style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px 10px 10px", borderRadius: 999, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--hi)", fontSize: 15, fontWeight: 600, color: "var(--n700)", whiteSpace: "nowrap" }}>
-                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0 }} fallback={null} />
-                  {s(l, "name")}
+                <span key={l.id} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 16, borderRadius: 20, background: "var(--card)", border: "1px solid var(--hair)", boxShadow: "var(--hi)" }}>
+                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ width: 72, height: 72, borderRadius: 14, objectFit: "contain", flexShrink: 0 }} fallback={null} />
                 </span>
               ))}
             </Marquee>
