@@ -24,7 +24,10 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
       if (!c || !s) return;
       const setW = s.scrollWidth;
       if (!setW || !c.offsetWidth) return;
-      setPerHalf(Math.max(1, Math.ceil(c.offsetWidth / setW) + 1));
+      // Enough sets so one copy is at least the viewport wide (so the duplicate
+      // fills the screen at the wrap). No +1 — when a single set already overflows
+      // the viewport that doubled the content to ~25k px and mobile blanked it.
+      setPerHalf(Math.max(1, Math.ceil(c.offsetWidth / setW)));
     };
     compute();
     const ro = new ResizeObserver(compute);
