@@ -255,16 +255,28 @@ h1, h2, h3, h4, .font-display {
   padding-inline: 24px;
 }
 
+/* Seamless track: two identical halves. -50% lands half a gap short (the gap
+   between the two halves counts once), so subtract gap/2 to make each loop
+   pixel-exact. Driven by the compositor (not JS rAF, which iOS Safari throttles
+   during and after scroll — that was freezing the strip at the end). */
 @keyframes yv-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(calc(-50% - var(--mq-gaphalf, 0px)), 0, 0); }
 }
 .marquee {
   display: flex;
   width: max-content;
-  animation: yv-marquee var(--dur, 40s) linear infinite;
+  will-change: transform;
+  /* Longhands (not the shorthand) so JS can set animation-delay / -name /
+     -play-state during a drag without the others resetting. */
+  animation-name: yv-marquee;
+  animation-duration: var(--dur, 40s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
-.marquee:hover { animation-play-state: paused; }
+/* Pause on a real mouse hover only. Touch never triggers :hover here, so a tap
+   can't freeze the strip (the old pointerenter/leave pause did on iOS). */
+.marquee-wrap:hover .marquee { animation-play-state: paused; }
 
 @keyframes yv-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .caret { animation: yv-caret 1s steps(1) infinite; }
