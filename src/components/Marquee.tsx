@@ -99,8 +99,11 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
       </div>
     ));
 
+    // No -webkit-overflow-scrolling:touch — on iOS it blanks large scroll content
+    // mid-scroll; the projects/news rails omit it and stay solid. Modern iOS has
+    // momentum scrolling by default anyway.
   return (
-    <div ref={scrollRef} className="overflow-x-auto hide-scrollbar" style={{ WebkitOverflowScrolling: "touch" }}>
+    <div ref={scrollRef} className="overflow-x-auto hide-scrollbar">
       <div className="flex w-max" style={{ gap }}>
         <div ref={copyRef} className="flex shrink-0" style={{ gap }}>{sets(true)}</div>
         <div className="flex shrink-0" style={{ gap }} aria-hidden="true">{sets(false)}</div>
