@@ -72,6 +72,20 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
     };
     raf = requestAnimationFrame(tick);
 
+    // Infinite reposition: whenever the scroll crosses one copy (auto OR a user
+    // swipe), jump back by exactly one copy. The two copies are identical so the
+    // jump is invisible, and neither end is ever a dead wall the user hits.
+    const onScroll = () => {
+      const per = period();
+      if (per <= 0) return;
+      if (el.scrollLeft >= per) {
+        el.scrollLeft -= per;
+        pos -= per;
+      } else if (el.scrollLeft < 0) {
+        el.scrollLeft += per;
+        pos += per;
+      }
+    };
     const onEnter = () => { hovering = true; };
     const onLeave = () => { hovering = false; last = 0; };
     const onTouchStart = () => { touching = true; };
@@ -105,6 +119,7 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
       }
     };
 
+    el.addEventListener("scroll", onScroll, { passive: true });
     el.addEventListener("mouseenter", onEnter);
     el.addEventListener("mouseleave", onLeave);
     el.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -116,6 +131,7 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
     el.addEventListener("click", onClick, true);
     return () => {
       cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", onScroll);
       el.removeEventListener("mouseenter", onEnter);
       el.removeEventListener("mouseleave", onLeave);
       el.removeEventListener("touchstart", onTouchStart);
