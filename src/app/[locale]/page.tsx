@@ -136,6 +136,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <SafeImage
                     src={s(c, "image_url")}
                     alt={s(c, "name")}
+                    loading="eager"
                     style={{ position: "relative", width: 52, height: 52, borderRadius: 16, objectFit: "contain", background: "var(--warm)" }}
                     fallback={<span className="font-display grid place-items-center shrink-0" style={{ position: "relative", width: 52, height: 52, borderRadius: 16, background: "var(--warm)", fontWeight: 700, color: "var(--warm-ink)" }}>{mono(s(c, "name"))}</span>}
                   />
@@ -267,6 +268,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <SafeImage
                     src={s(m, "photo_url")}
                     alt={s(m, "full_name")}
+                    loading="eager"
                     style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover" }}
                     fallback={
                       <div className="grid place-items-center" style={{ aspectRatio: "3/4", background: "var(--warm)" }}>
@@ -295,7 +297,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <Marquee durationSec={68} gap={64}>
               {partnerLogos.map((l) => (
                 <span key={l.id} style={{ display: "inline-flex", alignItems: "center" }}>
-                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} style={{ height: 72, width: "auto", maxWidth: 220, objectFit: "contain", flexShrink: 0 }} fallback={null} />
+                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} loading="eager" style={{ height: 72, width: "auto", maxWidth: 220, objectFit: "contain", flexShrink: 0 }} fallback={null} />
                 </span>
               ))}
             </Marquee>
