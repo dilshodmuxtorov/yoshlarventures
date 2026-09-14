@@ -1,10 +1,11 @@
 # Public marketing site — server-side compose file.
 #
 # The image is built and pushed by CI; the server only pulls. The container joins
-# the dashboard's existing docker network so it can reach the API as
-# http://backend:8000 without leaving the host — the public API hostname is never
-# involved at runtime, so site traffic does not depend on the API's TLS or on
-# nginx being up.
+# the dashboard's existing docker network. It was meant to reach the API as
+# http://backend:8000 without leaving the host, but that route did not resolve in
+# practice, so at runtime the site reads CMS content from the public API host
+# (see API_BASE below) — reliable through nginx, at the cost of leaving the host
+# for data. Set SITE_API_BASE to the internal URL once that network path works.
 #
 # The port is published on localhost only; nginx terminates TLS and proxies to it.
 
@@ -14,8 +15,15 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      # Where the site reads CMS content from, over the internal network.
-      API_BASE: ${API_BASE:-http://backend:8000}
+      # Where the site reads CMS content from at runtime. The internal
+      # http://backend:8000 route proved unreachable on the host (the appnet
+      # link/service name did not resolve), so ISR revalidation silently kept
+      # serving the build-time snapshot and dashboard content edits never
+      # appeared until the next deploy. Default to the public API host, which is
+      # always reachable through nginx; override with SITE_API_BASE if the
+      # internal network is confirmed working. (Deliberately not keyed on the
+      # existing API_BASE var, which the host .env may still pin to backend:8000.)
+      API_BASE: ${SITE_API_BASE:-https://dash-api.yoshlarventures.uz}
       # Canonical origin: metadata, sitemap and robots are built from this.
       SITE_URL: ${SITE_URL:-https://new.yoshlarventures.uz}
       # Staging must stay out of search results — set to "true" only on the
