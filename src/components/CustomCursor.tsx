@@ -1,6 +1,26 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+
+// True only on a device with a real (fine, hovering) pointer. Server snapshot is
+// false so a phone never even paints the cursor dots for a frame (they used to be
+// stranded in the top-left corner with no mouse to follow).
+function useFinePointer(): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const a = window.matchMedia("(pointer: fine)");
+      const b = window.matchMedia("(hover: none)");
+      a.addEventListener("change", onChange);
+      b.addEventListener("change", onChange);
+      return () => {
+        a.removeEventListener("change", onChange);
+        b.removeEventListener("change", onChange);
+      };
+    },
+    () => window.matchMedia("(pointer: fine)").matches && !window.matchMedia("(hover: none)").matches,
+    () => false,
+  );
+}
 
 const INTERACTIVE = "a,button,input,textarea,select,label,[role=button],[data-cursor]";
 
@@ -11,11 +31,11 @@ const INTERACTIVE = "a,button,input,textarea,select,label,[role=button],[data-cu
 export default function CustomCursor() {
   const ring = useRef<HTMLDivElement>(null);
   const dot = useRef<HTMLDivElement>(null);
+  const enabled = useFinePointer();
 
   useEffect(() => {
-    const fine = window.matchMedia("(pointer: fine)").matches;
+    if (!enabled) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!fine) return;
 
     const BASE = 30;
     const HOVER = 60; // 2× in place
@@ -59,7 +79,9 @@ export default function CustomCursor() {
       cancelAnimationFrame(raf);
       document.documentElement.classList.remove("has-custom-cursor");
     };
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <>
