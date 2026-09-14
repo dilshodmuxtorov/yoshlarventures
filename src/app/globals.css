@@ -266,17 +266,15 @@ h1, h2, h3, h4, .font-display {
 .marquee {
   display: flex;
   width: max-content;
-  will-change: transform;
-  /* Longhands (not the shorthand) so JS can set animation-delay / -name /
-     -play-state during a drag without the others resetting. */
+  /* Deliberately NO `will-change: transform`: these tracks are tens of thousands
+     of px wide, and forcing one persistent compositor layer that big made mobile
+     Safari/Chrome drop it (the whole strip went blank after a while). Without the
+     hint the browser tiles the layer on demand. */
   animation-name: yv-marquee;
   animation-duration: var(--dur, 40s);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
-/* Pause on a real mouse hover only. Touch never triggers :hover here, so a tap
-   can't freeze the strip (the old pointerenter/leave pause did on iOS). */
-.marquee-wrap:hover .marquee { animation-play-state: paused; }
 
 @keyframes yv-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .caret { animation: yv-caret 1s steps(1) infinite; }

@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 /**
- * Seamless, draggable marquee. The auto-loop is a CSS compositor animation
- * (see `.marquee` in globals.css) — iOS Safari throttles/pauses `requestAnimation
- * Frame` during and after scrolling, which froze the JS version at the end; a
- * compositor animation keeps looping. A pointer drag (mouse or finger) pauses the
- * animation, moves the strip by hand, then resumes it from the dragged position
- * via a negative animation-delay, so it never jumps.
+ * Seamless, draggable marquee. The auto-loop is a CSS compositor animation (see
+ * `.marquee` in globals.css) — iOS Safari throttles rAF during scroll, so a JS
+ * loop froze at the end; a CSS animation keeps looping. Drag is driven through
+ * the Web Animations API by setting the running animation's `currentTime`, so
+ * the finger scrubs the same animation (no restart, no inline-transform fight,
+ * and it repaints on iOS without needing a page scroll to kick it).
  */
 export default function Marquee({ children, durationSec = 40, gap = 16 }: { children: ReactNode; durationSec?: number; gap?: number }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -42,59 +42,63 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
     const track = trackRef.current;
     if (!wrap || !track) return;
 
+    // The CSS animation as a WAAPI Animation. Queried live (it may not exist yet
+    // on the first run, and prefers-reduced-motion removes it entirely).
+    const anim = () => track.getAnimations()[0] as Animation | undefined;
+
     let dragging = false;
+    let hovering = false; // mouse only
     let startX = 0;
-    let startTX = 0;
+    let startTime = 0;
     let moved = 0;
 
-    // Current translateX in px (the compositor animation resolves to a matrix).
-    const currentTX = () => {
-      try {
-        return new DOMMatrixReadOnly(getComputedStyle(track).transform).m41;
-      } catch {
-        return 0;
-      }
-    };
-    // Exact loop distance in px = one half + half a gap (matches the keyframe).
-    const periodPx = () => track.scrollWidth / 2 + gap / 2;
+    const periodPx = () => track.scrollWidth / 2 + gap / 2; // one loop, in px
+    const periodMs = () => Math.max(1, durationSec) * 1000; // one loop, in ms
 
-    const onMove = (e: PointerEvent) => {
+    const applyPlayState = () => {
+      const a = anim();
+      if (!a) return;
+      if (dragging || hovering) a.pause();
+      else a.play();
+    };
+
+    const onEnter = () => { hovering = true; applyPlayState(); };
+    const onLeave = () => { hovering = false; applyPlayState(); };
+
+    const onWinMove = (e: PointerEvent) => {
       if (!dragging) return;
+      const a = anim();
+      if (!a) return;
       const dx = e.clientX - startX;
       moved = Math.max(moved, Math.abs(dx));
-      track.style.transform = `translate3d(${startTX + dx}px,0,0)`;
+      // Dragging left (dx < 0) advances the loop (content moves left).
+      const per = periodMs();
+      const dtime = (dx / periodPx()) * per;
+      let ct = startTime - dtime;
+      ct = ((ct % per) + per) % per;
+      a.currentTime = ct;
     };
-    const onUp = () => {
+    const onWinUp = () => {
       if (!dragging) return;
       dragging = false;
       wrap.style.cursor = "grab";
-      const p = periodPx();
-      let tx = currentTX(); // animation is disabled, so this is the inline offset
-      if (p > 0) tx = -((((-tx % p) + p) % p)); // normalise into (-p, 0]
-      const frac = p > 0 ? -tx / p : 0; // 0..1 progress through one loop
-      // Re-enable the compositor animation starting from the dragged phase (a
-      // negative delay = already-elapsed time). The animation origin overrides
-      // the inline transform, so there is no jump.
-      track.style.animationDelay = `${-frac * durationSec}s`;
-      track.style.animationName = "yv-marquee";
-      track.style.transform = "";
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
+      applyPlayState(); // resume unless a mouse is still hovering
+      window.removeEventListener("pointermove", onWinMove);
+      window.removeEventListener("pointerup", onWinUp);
+      window.removeEventListener("pointercancel", onWinUp);
     };
     const onDown = (e: PointerEvent) => {
+      const a = anim();
+      if (!a) return;
       dragging = true;
+      a.pause();
       startX = e.clientX;
-      startTX = currentTX(); // read the animation's current position first
+      startTime = Number(a.currentTime) || 0;
       moved = 0;
-      // Disable the animation entirely (not just pause) — a paused CSS animation
-      // still wins over inline transform, so the strip wouldn't move under the drag.
-      track.style.animationName = "none";
-      track.style.transform = `translate3d(${startTX}px,0,0)`;
       wrap.style.cursor = "grabbing";
-      window.addEventListener("pointermove", onMove);
-      window.addEventListener("pointerup", onUp);
-      window.addEventListener("pointercancel", onUp);
+      window.addEventListener("pointermove", onWinMove);
+      window.addEventListener("pointerup", onWinUp);
+      window.addEventListener("pointercancel", onWinUp);
     };
     // A drag must not also click a card link, nor start a native image drag.
     const onClickCapture = (e: MouseEvent) => {
@@ -106,16 +110,20 @@ export default function Marquee({ children, durationSec = 40, gap = 16 }: { chil
     };
     const onDragStart = (e: Event) => e.preventDefault();
 
+    wrap.addEventListener("mouseenter", onEnter);
+    wrap.addEventListener("mouseleave", onLeave);
     wrap.addEventListener("pointerdown", onDown);
     wrap.addEventListener("click", onClickCapture, true);
     wrap.addEventListener("dragstart", onDragStart);
     return () => {
+      wrap.removeEventListener("mouseenter", onEnter);
+      wrap.removeEventListener("mouseleave", onLeave);
       wrap.removeEventListener("pointerdown", onDown);
       wrap.removeEventListener("click", onClickCapture, true);
       wrap.removeEventListener("dragstart", onDragStart);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("pointermove", onWinMove);
+      window.removeEventListener("pointerup", onWinUp);
+      window.removeEventListener("pointercancel", onWinUp);
     };
   }, [durationSec, gap, perHalf]);
 
