@@ -5,16 +5,21 @@ import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 /**
  * Infinite auto-scrolling rail that NEVER blanks on iOS.
  *
- * Every earlier variant (CSS keyframe / transform track / native overflow scroll)
- * rendered the whole list at least twice in one row for the loop. With a long list
- * that track is tens of thousands of px wide, and mobile Safari drops the part of
- * the layer it can't back with a texture — the rail goes blank "after the last
- * card". The fix is to stop making a giant layer at all: keep every item
- * ABSOLUTELY positioned inside a viewport-width, `overflow:hidden` box and move
- * each one individually with `translate3d`. An item that scrolls off the left is
- * wrapped by exactly one run-length back to the right (`x += totalRun`), so the
- * loop is seamless and the painted area is only ever one screen wide. No matter
- * how many cards there are, iOS only ever has a screen-sized layer to paint.
+ * History of what does NOT work on mobile Safari: (1) any track that lays the whole
+ * list out ≥2× in one row is tens of thousands of px wide and iOS drops the slice it
+ * can't texture → blank "after the last card"; (2) positioning each card with its own
+ * `translate3d` promotes ~23 cards to ~23 compositor layers at once, iOS runs out of
+ * GPU memory and drops one → blank; (3) papering over (2) by toggling
+ * `visibility:hidden` on off-screen cards made iOS repaint the layers late → cards
+ * flickered in and out.
+ *
+ * What DOES work: keep every card ABSOLUTELY positioned inside a viewport-width,
+ * `overflow:hidden` box and move it by animating `left` — a plain layout property that
+ * creates NO compositor layer, so there is no GPU memory to exhaust and nothing to
+ * flicker. Off-screen cards are clipped by the box so they cost no paint. An item that
+ * scrolls past the left edge wraps one run-length to the right (`x += totalRun`), so
+ * the loop is seamless. Only ~2-3 cards are ever painted, at slow speed, so `left`
+ * repaints stay cheap and smooth.
  *
  * `durationSec` = seconds to travel one full run (one copy of the list), so speed
  * stays consistent. Pauses on hover; follows finger/mouse drag then resumes.
@@ -49,20 +54,16 @@ export default function Marquee({
     let totalRun = 0; // width of ALL rendered nodes (reps copies) + their gaps
     let singleRun = 0; // width of ONE copy of the list + gaps
     let boxW = 0; // viewport width of the clip box
-    const shown: boolean[] = []; // last-applied visibility per node (avoids churn)
 
     // Measure the natural (flex) size of each card, then pin it absolutely. We let
     // the nodes lay out in normal flow first so their clamp()/vw widths resolve,
     // read them, then take them out of flow and drive them by transform.
     const layout = (): boolean => {
-      nodes.forEach((el, i) => {
+      nodes.forEach((el) => {
         el.style.position = "";
         el.style.left = "";
         el.style.top = "";
         el.style.width = "";
-        el.style.transform = "";
-        el.style.visibility = "";
-        shown[i] = true;
       });
       box.style.height = "";
 
@@ -103,21 +104,14 @@ export default function Marquee({
     if (!layout()) return; // bailed to fix `reps`; the re-render restarts the effect
 
     let offset = 0;
-    const BUFFER = 150; // keep cards a little outside the viewport painted, so none pops in blank
     const place = () => {
       if (totalRun <= 0) return;
       const off = ((offset % totalRun) + totalRun) % totalRun;
       for (let i = 0; i < nodes.length; i++) {
         let x = basePos[i] - off;
         if (x < -(widths[i] + gap)) x += totalRun; // wrapped past the left → to the right end
-        nodes[i].style.transform = `translate3d(${x}px,0,0)`;
-        // Only the cards near the viewport get a live compositor layer; hiding the
-        // rest frees their GPU textures so iOS never runs out and drops one to blank.
-        const onScreen = x + widths[i] > -BUFFER && x < boxW + BUFFER;
-        if (shown[i] !== onScreen) {
-          nodes[i].style.visibility = onScreen ? "visible" : "hidden";
-          shown[i] = onScreen;
-        }
+        // `left`, not transform: no compositor layer, so nothing for iOS to drop or flicker.
+        nodes[i].style.left = `${x}px`;
       }
     };
     place();
