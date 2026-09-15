@@ -48,17 +48,21 @@ export default function Marquee({
     let basePos: number[] = [];
     let totalRun = 0; // width of ALL rendered nodes (reps copies) + their gaps
     let singleRun = 0; // width of ONE copy of the list + gaps
+    let boxW = 0; // viewport width of the clip box
+    const shown: boolean[] = []; // last-applied visibility per node (avoids churn)
 
     // Measure the natural (flex) size of each card, then pin it absolutely. We let
     // the nodes lay out in normal flow first so their clamp()/vw widths resolve,
     // read them, then take them out of flow and drive them by transform.
     const layout = (): boolean => {
-      nodes.forEach((el) => {
+      nodes.forEach((el, i) => {
         el.style.position = "";
         el.style.left = "";
         el.style.top = "";
         el.style.width = "";
         el.style.transform = "";
+        el.style.visibility = "";
+        shown[i] = true;
       });
       box.style.height = "";
 
@@ -77,7 +81,7 @@ export default function Marquee({
       for (let i = 0; i < n; i++) singleRun += widths[i] + gap;
 
       // Need one copy to span the viewport plus a card, so no gap shows at the wrap.
-      const boxW = box.offsetWidth || 1;
+      boxW = box.offsetWidth || 1;
       if (singleRun > 0) {
         const need = Math.max(1, Math.ceil((boxW + maxW) / singleRun));
         if (need !== reps) {
@@ -99,6 +103,7 @@ export default function Marquee({
     if (!layout()) return; // bailed to fix `reps`; the re-render restarts the effect
 
     let offset = 0;
+    const BUFFER = 150; // keep cards a little outside the viewport painted, so none pops in blank
     const place = () => {
       if (totalRun <= 0) return;
       const off = ((offset % totalRun) + totalRun) % totalRun;
@@ -106,6 +111,13 @@ export default function Marquee({
         let x = basePos[i] - off;
         if (x < -(widths[i] + gap)) x += totalRun; // wrapped past the left → to the right end
         nodes[i].style.transform = `translate3d(${x}px,0,0)`;
+        // Only the cards near the viewport get a live compositor layer; hiding the
+        // rest frees their GPU textures so iOS never runs out and drops one to blank.
+        const onScreen = x + widths[i] > -BUFFER && x < boxW + BUFFER;
+        if (shown[i] !== onScreen) {
+          nodes[i].style.visibility = onScreen ? "visible" : "hidden";
+          shown[i] = onScreen;
+        }
       }
     };
     place();
