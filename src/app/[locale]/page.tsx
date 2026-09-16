@@ -10,6 +10,7 @@ import VideoEmbed from "@/components/VideoEmbed";
 import { Monogram } from "@/components/ui";
 import { getHomeData, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
+import { partnerLogoScale } from "@/lib/partnerLogo";
 import { formatK, totalInvestedK } from "@/lib/portfolio";
 
 const s = (r: ContentRecord, k: string) => (typeof r[k] === "string" ? (r[k] as string) : "");
@@ -295,11 +296,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
           <div style={{ marginTop: 36 }}>
             <Marquee durationSec={68} gap={64}>
-              {partnerLogos.map((l) => (
-                <span key={l.id} style={{ display: "inline-flex", alignItems: "center" }}>
-                  <SafeImage src={s(l, "logo_url")} alt={s(l, "name")} loading="eager" style={{ height: 72, width: "auto", maxWidth: 220, objectFit: "contain", flexShrink: 0 }} fallback={null} />
-                </span>
-              ))}
+              {partnerLogos.map((l) => {
+                const scale = partnerLogoScale(s(l, "name"));
+                return (
+                  <span key={l.id} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", height: 116 }}>
+                    <SafeImage
+                      src={s(l, "logo_url")}
+                      alt={s(l, "name")}
+                      loading="eager"
+                      style={{ height: 72 * scale, width: "auto", maxWidth: 220 * scale, objectFit: "contain", flexShrink: 0 }}
+                      fallback={null}
+                    />
+                  </span>
+                );
+              })}
             </Marquee>
           </div>
         </section>

@@ -6,6 +6,7 @@ import SafeImage from "@/components/SafeImage";
 import { Card, Monogram, Pill } from "@/components/ui";
 import { getCollection, getPageTexts, getSections, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
+import { partnerLogoScale } from "@/lib/partnerLogo";
 import { pageMetadata } from "@/lib/seo";
 
 const s = (r: ContentRecord, k: string) => (typeof r[k] === "string" ? (r[k] as string) : "");
@@ -35,21 +36,26 @@ export default async function PartnersPage({ params }: { params: Promise<{ local
         {texts.intro && <p className="mt-4 text-lg max-w-2xl" style={{ color: "var(--n500)" }}>{texts.intro}</p>}
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mt-10">
-          {items.map((c) => (
+          {items.map((c) => {
+            const scale = partnerLogoScale(s(c, "name"));
+            return (
             <article key={c.id}>
               <Card>
-                <SafeImage
-                  src={s(c, "logo_url")}
-                  alt={s(c, "name")}
-                  style={{ height: 56, width: "auto", maxWidth: 160, objectFit: "contain" }}
-                  fallback={<Monogram text={s(c, "name")} />}
-                />
+                <div style={{ height: 90, display: "flex", alignItems: "center" }}>
+                  <SafeImage
+                    src={s(c, "logo_url")}
+                    alt={s(c, "name")}
+                    style={{ height: 56 * scale, width: "auto", maxWidth: 160 * scale, objectFit: "contain" }}
+                    fallback={<Monogram text={s(c, "name")} />}
+                  />
+                </div>
                 <p className="eyebrow mt-4">{s(c, "kind")}</p>
                 <h2 className="font-display font-semibold text-lg mt-1">{s(c, "name")}</h2>
                 <p className="text-sm mt-2" style={{ color: "var(--n500)" }}>{s(c, "note")}</p>
               </Card>
             </article>
-          ))}
+            );
+          })}
         </div>
 
         {items.length === 0 && <p className="mt-10" style={{ color: "var(--n500)" }}>{t.misc.empty}</p>}
