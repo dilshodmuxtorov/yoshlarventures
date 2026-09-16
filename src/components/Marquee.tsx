@@ -198,6 +198,21 @@ export default function Marquee({
     });
     ro.observe(box);
 
+    // Items sized by an <img> with width:auto (the partner logos) measure wrong
+    // while the image is still loading — the first layout uses a near-zero width
+    // and the logos then overlap once the images pop in. Re-run the layout as each
+    // image finishes (the box width never changes, so the ResizeObserver alone
+    // would not catch it).
+    const relayout = () => {
+      if (dragging) return;
+      if (layout()) place();
+    };
+    const pendingImgs = Array.from(box.querySelectorAll("img")).filter((img) => !img.complete);
+    pendingImgs.forEach((img) => {
+      img.addEventListener("load", relayout);
+      img.addEventListener("error", relayout);
+    });
+
     box.addEventListener("mouseenter", onEnter);
     box.addEventListener("mouseleave", onLeave);
     box.addEventListener("pointerdown", onDown);
@@ -209,6 +224,10 @@ export default function Marquee({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      pendingImgs.forEach((img) => {
+        img.removeEventListener("load", relayout);
+        img.removeEventListener("error", relayout);
+      });
       box.removeEventListener("mouseenter", onEnter);
       box.removeEventListener("mouseleave", onLeave);
       box.removeEventListener("pointerdown", onDown);
