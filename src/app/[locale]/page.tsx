@@ -295,16 +295,25 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 className="font-display" style={{ fontWeight: 700, letterSpacing: "-0.04em", fontSize: "clamp(28px,4.2vw,46px)", lineHeight: 1.02, margin: 0 }}>{x.lentaTitle || g.secPartners}</h2>
           </div>
           <div style={{ marginTop: 36 }}>
-            <Marquee durationSec={68} gap={64}>
+            <Marquee durationSec={68} gap={64} gapSm={28}>
               {partnerLogos.map((l) => {
                 const scale = partnerLogoScale(s(l, "name"));
                 return (
-                  <span key={l.id} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", height: 116 }}>
+                  // Height/max-width shrink on phones via clamp (so the row is not
+                  // mostly empty space); the marquee equalises every item to the
+                  // tallest, so no fixed container height is needed.
+                  <span key={l.id} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
                     <SafeImage
                       src={s(l, "logo_url")}
                       alt={s(l, "name")}
                       loading="eager"
-                      style={{ height: 72 * scale, width: "auto", maxWidth: 220 * scale, objectFit: "contain", flexShrink: 0 }}
+                      style={{
+                        height: `calc(clamp(42px, 12vw, 72px) * ${scale})`,
+                        width: "auto",
+                        maxWidth: `calc(clamp(130px, 42vw, 220px) * ${scale})`,
+                        objectFit: "contain",
+                        flexShrink: 0,
+                      }}
                       fallback={null}
                     />
                   </span>

@@ -1,6 +1,20 @@
 "use client";
 
-import { Children, useEffect, useRef, useState, type ReactNode } from "react";
+import { Children, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+
+// True on a narrow (phone) viewport. Server snapshot is false so SSR renders the
+// desktop gap; the client corrects after mount.
+function useNarrowViewport(): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia("(max-width: 640px)");
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia("(max-width: 640px)").matches,
+    () => false,
+  );
+}
 
 /**
  * Infinite auto-scrolling rail that NEVER blanks on iOS.
@@ -27,14 +41,21 @@ import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 export default function Marquee({
   children,
   durationSec = 40,
-  gap = 16,
+  gap: gapProp = 16,
+  gapSm,
 }: {
   children: ReactNode;
   durationSec?: number;
   gap?: number;
+  /** Tighter gap on phones (<=640px); falls back to `gap` when omitted. */
+  gapSm?: number;
 }) {
   const items = Children.toArray(children);
   const n = items.length;
+  // Phones get the tighter gap so a wide gap (e.g. the partner logos' 64px) does
+  // not leave big empty stretches scrolling by on a narrow screen.
+  const narrow = useNarrowViewport();
+  const gap = narrow && gapSm != null ? gapSm : gapProp;
   const boxRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   // How many times the list is repeated in the DOM. A single copy of the list has
