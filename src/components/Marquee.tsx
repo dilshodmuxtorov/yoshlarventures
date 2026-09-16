@@ -64,6 +64,7 @@ export default function Marquee({
         el.style.left = "";
         el.style.top = "";
         el.style.width = "";
+        el.style.height = "";
       });
       box.style.height = "";
 
@@ -97,6 +98,11 @@ export default function Marquee({
         el.style.top = "0";
         el.style.left = "0";
         el.style.width = `${widths[i]}px`;
+        // Equal-height row: every card fills the tallest one (the wrapper is a
+        // flex box, so the card inside stretches), so cards whose text runs to a
+        // different number of lines still line up instead of ending at different
+        // heights. yv-card-inner is height:100%, so it fills the extra space.
+        el.style.height = `${maxH}px`;
       });
       return true;
     };
