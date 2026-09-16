@@ -71,7 +71,10 @@ async function pub<T>(path: string, locale: Locale, fallback: T): Promise<T> {
           // port that speaks plain HTTP, and the read fails.
           "X-Forwarded-Proto": "https",
         },
-        next: { revalidate: REVALIDATE },
+        // Tagged so the dashboard can purge every CMS-backed page at once via the
+        // /api/revalidate route the moment content changes; REVALIDATE stays as the
+        // fallback window if that call never arrives.
+        next: { revalidate: REVALIDATE, tags: ["cms"] },
       });
       if (res.ok) {
         const json = (await res.json()) as { response?: T } & T;
