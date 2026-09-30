@@ -26,6 +26,13 @@ const FUNDING: Record<Locale, string[]> = {
 
 const SOCIALS = ["Telegram", "Instagram", "LinkedIn", "Facebook", "X", "YouTube", "Veb-sayt"];
 
+// Intro/how-to-apply video per language, shown on step 1 only.
+const INTRO_VIDEO: Record<Locale, string> = {
+  uz: "EuWWjXqDILU",
+  en: "q9tileuN0Xw",
+  ru: "XOsHUpojqOk",
+};
+
 const inputStyle = { background: "var(--surface)", borderColor: "var(--hair)", color: "var(--fg)" } as const;
 const ic = "w-full rounded-xl border px-4 h-12 text-sm";
 
@@ -189,6 +196,24 @@ export default function ApplyForm({ locale }: { locale: Locale }) {
 
   return (
     <div className="yv-card"><div className="yv-card-inner p-6 md:p-8">
+      {/* Localised how-to-apply video — step 1 only; it goes away once the
+          applicant moves on so it never crowds the later steps. */}
+      {step === 1 && (
+        <div
+          className="mb-6 overflow-hidden rounded-xl border"
+          style={{ borderColor: "var(--hair)", aspectRatio: "16 / 9" }}
+        >
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${INTRO_VIDEO[locale]}`}
+            title="Yoshlar Ventures"
+            style={{ width: "100%", height: "100%", border: 0, display: "block" }}
+            loading="lazy"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        </div>
+      )}
       <div className="flex items-center justify-between mb-2 text-sm">
         <span className="font-semibold">{t.step} {step} {t.of} 4</span>
         <span style={{ color: "var(--n500)" }}>{progress}%</span>
