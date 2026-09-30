@@ -41,11 +41,16 @@ function useNarrowViewport(): boolean {
 export default function Marquee({
   children,
   durationSec = 40,
+  durationSm,
   gap: gapProp = 16,
   gapSm,
 }: {
   children: ReactNode;
   durationSec?: number;
+  /** Faster loop on phones (<=640px); falls back to `durationSec` when omitted.
+   *  A phone shows ~1 wide card at a time, so the desktop pace crawls there and
+   *  the next card seems to take forever — a shorter run keeps it lively. */
+  durationSm?: number;
   gap?: number;
   /** Tighter gap on phones (<=640px); falls back to `gap` when omitted. */
   gapSm?: number;
@@ -56,6 +61,7 @@ export default function Marquee({
   // not leave big empty stretches scrolling by on a narrow screen.
   const narrow = useNarrowViewport();
   const gap = narrow && gapSm != null ? gapSm : gapProp;
+  const duration = narrow && durationSm != null ? durationSm : durationSec;
   const boxRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   // How many times the list is repeated in the DOM. A single copy of the list has
@@ -143,7 +149,7 @@ export default function Marquee({
     };
     place();
 
-    const pxPerSec = () => singleRun / Math.max(1, durationSec);
+    const pxPerSec = () => singleRun / Math.max(1, duration);
 
     let raf = 0;
     let last = 0;
@@ -257,7 +263,7 @@ export default function Marquee({
       box.removeEventListener("pointercancel", endDrag);
       box.removeEventListener("click", onClick, true);
     };
-  }, [children, durationSec, gap, reps, n]);
+  }, [children, duration, gap, reps, n]);
 
   return (
     <div

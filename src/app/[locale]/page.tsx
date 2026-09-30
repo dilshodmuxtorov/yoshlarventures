@@ -267,9 +267,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="container-yv">
             <h2 className="section-title">{x.secTeam || g.secTeam}</h2>
           </div>
-          <Marquee durationSec={220} gap={18}>
+          <Marquee durationSec={220} durationSm={70} gap={18} gapSm={14}>
             {d.team.map((m) => (
-              <article key={m.id} className="yv-card" style={{ flex: "0 0 clamp(230px,72vw,260px)" }}>
+              <article key={m.id} className="yv-card" style={{ flex: "0 0 clamp(220px,64vw,260px)" }}>
                 <div className="yv-card-inner overflow-hidden">
                   <SafeImage
                     src={s(m, "photo_url")}
