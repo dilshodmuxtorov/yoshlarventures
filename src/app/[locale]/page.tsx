@@ -258,8 +258,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ── Team ── */}
+      {/* Plain <section>, NOT <Reveal>: the reveal animation leaves a persistent
+          `transform` on the section, and that transformed ancestor fights the
+          Marquee's rail on iOS (blank / janky cards). The partners marquee has no
+          such wrapper and scrolls flawlessly, so the team rail mirrors it. */}
       {vis("home.team") && d.team.length > 0 && (
-        <Reveal as="section" className="section">
+        <section className="section">
           <div className="container-yv">
             <h2 className="section-title">{x.secTeam || g.secTeam}</h2>
           </div>
@@ -286,7 +290,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </article>
             ))}
           </Marquee>
-        </Reveal>
+        </section>
       )}
 
       {/* ── Partners marquee ── */}
