@@ -6,6 +6,7 @@ import Hero from "@/components/sections/Hero";
 import Marquee from "@/components/Marquee";
 import Reveal from "@/components/Reveal";
 import SafeImage from "@/components/SafeImage";
+import PartnerLogo from "@/components/PartnerLogo";
 import VideoEmbed from "@/components/VideoEmbed";
 import { Monogram } from "@/components/ui";
 import { getHomeData, isVisible, type ContentRecord } from "@/lib/api";
@@ -303,8 +304,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   // mostly empty space); the marquee equalises every item to the
                   // tallest, so no fixed container height is needed.
                   <span key={l.id} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                    <SafeImage
-                      src={s(l, "logo_url")}
+                    <PartnerLogo
+                      light={s(l, "logo_url")}
+                      dark={s(l, "dark_logo_url")}
                       alt={s(l, "name")}
                       loading="eager"
                       style={{

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import SafeImage from "@/components/SafeImage";
+import PartnerLogo from "@/components/PartnerLogo";
 import { Card, Monogram, Pill } from "@/components/ui";
 import { getCollection, getPageTexts, getSections, isVisible, type ContentRecord } from "@/lib/api";
 import { UI, isLocale, type Locale } from "@/lib/i18n";
@@ -42,8 +42,9 @@ export default async function PartnersPage({ params }: { params: Promise<{ local
             <article key={c.id}>
               <Card>
                 <div style={{ height: 90, display: "flex", alignItems: "center" }}>
-                  <SafeImage
-                    src={s(c, "logo_url")}
+                  <PartnerLogo
+                    light={s(c, "logo_url")}
+                    dark={s(c, "dark_logo_url")}
                     alt={s(c, "name")}
                     style={{ height: 56 * scale, width: "auto", maxWidth: 160 * scale, objectFit: "contain" }}
                     fallback={<Monogram text={s(c, "name")} />}
