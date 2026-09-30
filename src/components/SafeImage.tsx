@@ -29,21 +29,36 @@ export default function SafeImage({
   const ref = useRef<HTMLImageElement>(null);
 
   // The markup is server-rendered, so the browser starts fetching long before
-  // React attaches onError — for an EAGER image that 403s, the error event is
-  // usually gone by the time this component hydrates and the reader is left with
-  // the browser's broken-image glyph. A finished eager request with no intrinsic
-  // width is a load that failed, so that state is recovered on mount.
+  // React attaches onError — for an image that 403s, the error event can be gone
+  // by hydration, leaving the reader with the browser's broken-image glyph.
   //
-  // We NEVER pre-judge `loading="lazy"` images: iOS Safari / WebKit reports a
-  // lazy image as `complete` with `naturalWidth === 0` — sometimes even with
-  // `currentSrc` set — while it is still deferred or merely decoding. The old
-  // `currentSrc` guard was not enough, so real CMS images (e.g. the news cards)
-  // were wrongly flagged as failed and vanished on mobile Safari and Chrome.
-  // Lazy images are left entirely to their own onLoad / onError below.
+  // The old fix pre-judged that on mount with `complete && naturalWidth === 0`.
+  // That is UNRELIABLE on iOS Safari / WebKit, which reports a perfectly good
+  // image as `complete` with `naturalWidth === 0` while it is still decoding —
+  // so real photos (team cards, news images) were wrongly flagged as failed and
+  // vanished on mobile. `img.decode()` settles it reliably on every browser: it
+  // resolves once the image can paint and rejects only when it truly cannot. We
+  // consult it only for an image the browser has already selected a source for
+  // (`currentSrc`) and finished (`complete`) yet has no dimensions — never for a
+  // deferred lazy image, so lazy loading is preserved.
   useEffect(() => {
     const el = ref.current;
-    if (el && loading !== "lazy" && el.complete && el.naturalWidth === 0 && el.currentSrc) setFailed(true);
-  }, [loading]);
+    if (!el || !el.currentSrc || !el.complete || el.naturalWidth > 0) return;
+    let cancelled = false;
+    el.decode().then(
+      () => {
+        if (!cancelled) setFailed(false);
+      },
+      () => {
+        // Only give up if it still has no dimensions — decode() can reject when
+        // the src changes mid-flight, which the cleanup already handles.
+        if (!cancelled && el.complete && el.naturalWidth === 0) setFailed(true);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
 
   if (!src || failed) return <>{fallback}</>;
   return (
