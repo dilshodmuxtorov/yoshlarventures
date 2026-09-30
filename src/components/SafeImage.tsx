@@ -29,25 +29,34 @@ export default function SafeImage({
   const ref = useRef<HTMLImageElement>(null);
 
   // The markup is server-rendered, so the browser starts fetching long before
-  // React attaches onError — for an image that 403s, the error event is usually
-  // gone by the time this component hydrates and the reader is left with the
-  // browser's broken-image glyph. A finished request with no intrinsic width is
-  // a load that failed, so the same state is recovered on mount.
+  // React attaches onError — for an EAGER image that 403s, the error event is
+  // usually gone by the time this component hydrates and the reader is left with
+  // the browser's broken-image glyph. A finished eager request with no intrinsic
+  // width is a load that failed, so that state is recovered on mount.
   //
-  // `currentSrc` guards a Safari/WebKit quirk: a `loading="lazy"` image that is
-  // still below the fold is reported as `complete` with `naturalWidth === 0`
-  // (Chromium reports it as not-complete). Without the guard every off-screen
-  // CMS image would be wrongly flagged as failed and collapse to its fallback.
-  // A genuinely failed load has selected a source (`currentSrc` set); a merely
-  // deferred one has not.
+  // We NEVER pre-judge `loading="lazy"` images: iOS Safari / WebKit reports a
+  // lazy image as `complete` with `naturalWidth === 0` — sometimes even with
+  // `currentSrc` set — while it is still deferred or merely decoding. The old
+  // `currentSrc` guard was not enough, so real CMS images (e.g. the news cards)
+  // were wrongly flagged as failed and vanished on mobile Safari and Chrome.
+  // Lazy images are left entirely to their own onLoad / onError below.
   useEffect(() => {
     const el = ref.current;
-    if (el && el.complete && el.naturalWidth === 0 && el.currentSrc) setFailed(true);
-  }, []);
+    if (el && loading !== "lazy" && el.complete && el.naturalWidth === 0 && el.currentSrc) setFailed(true);
+  }, [loading]);
 
   if (!src || failed) return <>{fallback}</>;
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img ref={ref} src={src} alt={alt} className={className} style={style} loading={loading} onError={() => setFailed(true)} />
+    <img
+      ref={ref}
+      src={src}
+      alt={alt}
+      className={className}
+      style={style}
+      loading={loading}
+      onLoad={() => setFailed(false)}
+      onError={() => setFailed(true)}
+    />
   );
 }
